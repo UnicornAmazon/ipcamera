@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.afscope.ipcamera.activities.CameraActivity">
+
+    <LinearLayout
+        android:id="@+id/ll_header"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="50dp"
+        android:paddingBottom="50dp"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentRight="true">
+        <ImageView
+            android:id="@+id/iv_white_balance"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher"/>
+        <ImageView
+            android:id="@+id/iv_exposure_and_gain"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher"/>
+        <ImageView
+            android:id="@+id/iv_color_adjust"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher"/>
+        <ImageView
+            android:id="@+id/iv_focus"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@mipmap/ic_launcher"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_footer"
+        android:layout_width="50dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:background="@color/colorPrimary">
+        <ImageView
+            android:id="@+id/iv_explore"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginTop="12dp"
+            android:layout_centerHorizontal="true"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="centerCrop" />
+        
+        <ImageView
+            android:id="@+id/iv_capture_or_record"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:src="@mipmap/ic_launcher"
+            android:scaleType="centerInside"/>
+        
+        <Switch
+            android:id="@+id/switch_capture_or_record"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/render_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/ll_header"
+        android:layout_toRightOf="@id/rl_footer"/>
+</RelativeLayout>

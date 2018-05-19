@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">IPCamera</string>
+    <string name="authorities">com.afscope.authorities.fileprovider</string>
+</resources>
