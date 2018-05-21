@@ -6,10 +6,12 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.util.MonthDisplayHelper;
 
 import com.afscope.ipcamera.beans.ParametersBean;
 
 import java.util.HashMap;
+import java.util.IllegalFormatCodePointException;
 import java.util.Map;
 
 /**
@@ -34,7 +36,7 @@ public class CmdAndParamsCodec {
      * 参数说明：
      * 聚焦位置：pos
      */
-    private static final String CMD_PARAMETER_FOCUS_MODE = "C&a&s&E";
+    private static final String CMD_PARAMETER_FOCUS_MODE = "C&a&s%&E";
     private static final String SUB_CMD_PARAMETER_FOCUS_MODE_MANUAL_MODE = "3&pos=%d";
 
     /**
@@ -95,6 +97,19 @@ public class CmdAndParamsCodec {
      * 返回值：图片的base64编码
      */
     private static final String CMD_REQUEST_SHOOT = "F&E";
+
+    public static final String getWhiteBalanceParamsCmd(ParametersBean bean){
+        String param;
+        if (ParametersBean.WHITE_BALANCE_MODE_MANUAL == bean.getWhiteBalanceMode()){
+            param = String.format(SUB_CMD_PARAMETER_WHITE_BALANCE_MANUAL_MODE,
+                    bean.getWhiteBalanceRed(),
+                    bean.getWhiteBalanceGreen(),
+                    bean.getWhiteBalanceBlue());
+        } else {
+            param = Integer.toString(bean.getWhiteBalanceMode());
+        }
+        return String.format(CMD_PARAMETER_WHITE_BALANCE, param);
+    }
 
     public static final String getRequestParamsCmd(){
         return CMD_REQUEST_PARAMETERS;

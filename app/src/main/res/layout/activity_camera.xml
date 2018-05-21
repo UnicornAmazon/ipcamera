@@ -5,44 +5,6 @@
     android:layout_height="match_parent"
     tools:context="com.afscope.ipcamera.activities.CameraActivity">
 
-    <LinearLayout
-        android:id="@+id/ll_header"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:paddingStart="50dp"
-        android:paddingEnd="50dp"
-        android:background="@color/colorPrimary">
-        <ImageView
-            android:id="@+id/iv_white_balance"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_white_balance"/>
-        <ImageView
-            android:id="@+id/iv_exposure_and_gain"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_exposure_and_gain"/>
-        <ImageView
-            android:id="@+id/iv_color_adjust"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_color_adjust"/>
-        <ImageView
-            android:id="@+id/iv_focus"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_color_adjust"/>
-    </LinearLayout>
-
     <RelativeLayout
         android:id="@+id/rl_footer"
         android:layout_width="match_parent"
@@ -79,6 +41,48 @@
         android:id="@+id/render_holder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/ll_header"
-        android:layout_above="@id/rl_footer"/>
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_above="@id/rl_footer" />
+
+    <com.afscope.ipcamera.views.ParamsBarLayout
+        android:id="@+id/ll_header"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="-40dp"
+        android:layout_alignParentTop="true"
+        android:paddingStart="50dp"
+        android:paddingEnd="50dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="@color/colorPrimary">
+        <ImageView
+            android:id="@+id/iv_white_balance"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_white_balance"/>
+        <ImageView
+            android:id="@+id/iv_exposure_and_gain"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_exposure_and_gain"/>
+        <ImageView
+            android:id="@+id/iv_color_adjust"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_color_adjust"/>
+        <ImageView
+            android:id="@+id/iv_focus"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_focus"/>
+    </com.afscope.ipcamera.views.ParamsBarLayout>
 </RelativeLayout>

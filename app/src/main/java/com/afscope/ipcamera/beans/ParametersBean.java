@@ -20,12 +20,14 @@ public class ParametersBean {
     private static final String TAG = "ParametersBean";
 
     //1、白平衡
+    public static final int WHITE_BALANCE_MODE_MANUAL = 2;
     private int whiteBalanceMode;
     private int whiteBalanceRed;
     private int whiteBalanceGreen;
     private int whiteBalanceBlue;
 
     //2、曝光与增益
+    public static final int EXPOSURE_MODE_MANUAL = 2;
     private int exposureMode;    //曝光模式
     private int exposureBright;   //曝光亮度
     private int exposureGain;    //曝光增益
@@ -33,12 +35,45 @@ public class ParametersBean {
     //3、颜色调整
 
     //4、聚焦模式与区域
+    public static final int FOCUS_MODE_MANUAL = 2;
     private int focusMode;
     private int focusPos;
     //区域
     private int focusAreaSize;
     private int focusHorizontal;
     private int focusVertical;
+
+    public int getWhiteBalanceMode(){
+        return whiteBalanceMode;
+    }
+
+    public int getWhiteBalanceRed(){
+        return whiteBalanceRed;
+    }
+
+    public int getWhiteBalanceGreen(){
+        return whiteBalanceGreen;
+    }
+
+    public int getWhiteBalanceBlue(){
+        return whiteBalanceBlue;
+    }
+
+    public void setWhiteBalanceMode(int whiteBalanceMode) {
+        this.whiteBalanceMode = whiteBalanceMode;
+    }
+
+    public void setWhiteBalanceRed(int whiteBalanceRed) {
+        this.whiteBalanceRed = whiteBalanceRed;
+    }
+
+    public void setWhiteBalanceGreen(int whiteBalanceGreen) {
+        this.whiteBalanceGreen = whiteBalanceGreen;
+    }
+
+    public void setWhiteBalanceBlue(int whiteBalanceBlue) {
+        this.whiteBalanceBlue = whiteBalanceBlue;
+    }
 
     @Override
     public String toString() {

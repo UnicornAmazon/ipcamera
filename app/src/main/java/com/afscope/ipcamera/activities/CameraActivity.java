@@ -2,20 +2,29 @@ package com.afscope.ipcamera.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.Switch;
 
 import com.afscope.ipcamera.R;
+import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.fragments.PlayFragment;
 import com.afscope.ipcamera.utils.Toast;
 import com.afscope.ipcamera.utils.Utils;
+import com.afscope.ipcamera.viewbinding.WhiteBalanceDialogBinding;
+import com.afscope.ipcamera.views.ParamsBarLayout;
+import com.afscope.ipcamera.views.ParamsDialog;
 import com.afscope.ipcamera.wscontroller.CmdAndParamsCodec;
 import com.afscope.ipcamera.wscontroller.WsController;
 
@@ -39,11 +48,20 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
 
     private static final int REQUEST_CODE_REQUEST_STORAGE_PERMISSION = 335;
 
+    @BindView(R.id.render_holder)
+    FrameLayout render_holder;
+    @BindView(R.id.ll_header)
+    ParamsBarLayout ll_header;
     @BindView(R.id.switch_capture_or_record)
     Switch switch_capture_or_record;
 
     private PlayFragment playFragment;
     private WsController wsController;
+
+    private ParamsDialog whiteBalanceParamsDialog;
+    private ParamsDialog exposureParamsDialog;
+    private ParamsDialog colorParamsDialog;
+    private ParamsDialog focusParamsDialog;
 
     @Override
     protected int getLayoutId() {
@@ -53,6 +71,13 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @Override
     protected void initView() {
         Log.i(TAG, "initView: ");
+        render_holder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "render_holder, onClick: ");
+                ll_header.showOrHide();
+            }
+        });
     }
 
     @Override
@@ -97,7 +122,18 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.i(TAG, "onConfigurationChanged: newConfig: " + newConfig);
-
+        if (colorParamsDialog != null){
+            colorParamsDialog.onConfigurationChanged(newConfig);
+        }
+        if (exposureParamsDialog != null){
+            exposureParamsDialog.onConfigurationChanged(newConfig);
+        }
+        if (colorParamsDialog != null){
+            colorParamsDialog.onConfigurationChanged(newConfig);
+        }
+        if (focusParamsDialog != null){
+            focusParamsDialog.onConfigurationChanged(newConfig);
+        }
     }
 
     @OnClick(R.id.iv_capture_or_record)
@@ -165,29 +201,96 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     }
 
     @OnClick(R.id.iv_white_balance)
-    void showWhiteBalanceSettings(){
+    void showWhiteBalanceSettings(View view){
         Log.i(TAG, "showWhiteBalanceSettings: ");
-
+        if (whiteBalanceParamsDialog == null){
+            whiteBalanceParamsDialog = new ParamsDialog(this,
+                    view,
+                    R.layout.layout_while_balance_dialog,
+                    new WhiteBalanceDialogBinding(new ParametersBean()));
+            whiteBalanceParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    ll_header.showForever();
+                }
+            }).setOuterOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    ll_header.hideAfterAWhile();
+                }
+            });
+        }
+        whiteBalanceParamsDialog.show();
     }
 
     @OnClick(R.id.iv_exposure_and_gain)
-    void showExposureSettings(){
+    void showExposureSettings(View view){
         Log.i(TAG, "showExposureSettings: ");
-
+        if (exposureParamsDialog == null){
+            exposureParamsDialog = new ParamsDialog(this,
+                    view,
+                    R.layout.layout_while_balance_dialog,
+                    new WhiteBalanceDialogBinding(new ParametersBean()));
+            exposureParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    ll_header.showForever();
+                }
+            }).setOuterOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    ll_header.hideAfterAWhile();
+                }
+            });
+        }
+        exposureParamsDialog.show();
     }
 
     @OnClick(R.id.iv_color_adjust)
-    void showColorSettings(){
+    void showColorSettings(View view){
         Log.i(TAG, "showColorSettings: ");
-
+        if (colorParamsDialog == null){
+            colorParamsDialog = new ParamsDialog(this,
+                    view,
+                    R.layout.layout_while_balance_dialog,
+                    new WhiteBalanceDialogBinding(new ParametersBean()));
+            colorParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    ll_header.showForever();
+                }
+            }).setOuterOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    ll_header.hideAfterAWhile();
+                }
+            });
+        }
+        colorParamsDialog.show();
     }
 
     @OnClick(R.id.iv_focus)
-    void showFocusSettings(){
+    void showFocusSettings(View view){
         Log.i(TAG, "showFocusSettings: ");
-
+        if (focusParamsDialog == null){
+            focusParamsDialog = new ParamsDialog(this,
+                    view,
+                    R.layout.layout_while_balance_dialog,
+                    new WhiteBalanceDialogBinding(new ParametersBean()));
+            focusParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialog) {
+                    ll_header.showForever();
+                }
+            }).setOuterOnDismissListener(new DialogInterface.OnDismissListener() {
+                @Override
+                public void onDismiss(DialogInterface dialog) {
+                    ll_header.hideAfterAWhile();
+                }
+            });
+        }
+        focusParamsDialog.show();
     }
-
 
     private void requestStoragePermission(){
         if (ActivityCompat.shouldShowRequestPermissionRationale(
@@ -251,6 +354,21 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                 }
             }
         }
+    }
+
+    //连续按两次返回键确认退出
+    private long lastBackKeyDownAtTime;
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        long now = SystemClock.elapsedRealtime();
+        if (keyCode == KeyEvent.KEYCODE_BACK){
+            if (now - lastBackKeyDownAtTime > 2 * 1000){
+                Toast.toast("再按一次返回键确认退出！");
+                lastBackKeyDownAtTime = now;
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     @Override
