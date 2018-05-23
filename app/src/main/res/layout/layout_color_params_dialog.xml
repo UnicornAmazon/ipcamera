@@ -12,7 +12,7 @@
         android:layout_height="30dp"
         android:layout_marginBottom="10dp"
         android:gravity="center"
-        android:text="白平衡"
+        android:text="@string/color_settings"
         android:textColor="@android:color/white"
         android:background="@drawable/tv_camera_params_title_bg"/>
     <LinearLayout
@@ -25,9 +25,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="R"/>
+            android:text="@string/color_hue"/>
         <TextView
-            android:id="@+id/tv_red_value"
+            android:id="@+id/tv_hue_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,7 +35,31 @@
             android:text="0"/>
     </LinearLayout>
     <SeekBar
-        android:id="@+id/sb_red"
+        android:id="@+id/sb_hue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="@string/sb_max_value_common"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/color_saturation"/>
+        <TextView
+            android:id="@+id/tv_saturation_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="0"/>
+    </LinearLayout>
+    <SeekBar
+        android:id="@+id/sb_saturation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="10"/>
@@ -49,9 +73,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="G"/>
+            android:text="@string/color_brightness"/>
         <TextView
-            android:id="@+id/tv_green_value"
+            android:id="@+id/tv_brightness_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -59,7 +83,7 @@
             android:text="0"/>
     </LinearLayout>
     <SeekBar
-        android:id="@+id/sb_green"
+        android:id="@+id/sb_brightness"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="10"/>
@@ -73,9 +97,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="B"/>
+            android:text="@string/color_contrast"/>
         <TextView
-            android:id="@+id/tv_blue_value"
+            android:id="@+id/tv_contrast_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -83,7 +107,31 @@
             android:text="0"/>
     </LinearLayout>
     <SeekBar
-        android:id="@+id/sb_blue"
+        android:id="@+id/sb_contrast"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="10"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/color_gamma"/>
+        <TextView
+            android:id="@+id/tv_gamma_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="0"/>
+    </LinearLayout>
+    <SeekBar
+        android:id="@+id/sb_gamma"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="10"/>
@@ -98,7 +146,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:text="应用"/>
+            android:text="@string/bt_save_settings"/>
         <Button
             android:id="@+id/bt_recovery_to_default"
             android:layout_width="0dp"
@@ -106,6 +154,6 @@
             android:layout_weight="1"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
-            android:text="默认"/>
+            android:text="@string/bt_recovery_to_default"/>
     </LinearLayout>
 </LinearLayout>

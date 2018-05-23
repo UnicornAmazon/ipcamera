@@ -33,6 +33,11 @@ public class ParametersBean {
     private int exposureGain;    //曝光增益
 
     //3、颜色调整
+    private int colorHue;    //色调
+    private int colorSaturation;    //饱和度
+    private int colorBrightness;    //亮度
+    private int colorContrast;    //对比度
+    private int colorGamma;    //伽玛
 
     //4、聚焦模式与区域
     public static final int FOCUS_MODE_MANUAL = 2;
@@ -73,6 +78,110 @@ public class ParametersBean {
 
     public void setWhiteBalanceBlue(int whiteBalanceBlue) {
         this.whiteBalanceBlue = whiteBalanceBlue;
+    }
+
+    public int getExposureMode() {
+        return exposureMode;
+    }
+
+    public void setExposureMode(int exposureMode) {
+        this.exposureMode = exposureMode;
+    }
+
+    public int getExposureBright() {
+        return exposureBright;
+    }
+
+    public void setExposureBright(int exposureBright) {
+        this.exposureBright = exposureBright;
+    }
+
+    public int getExposureGain() {
+        return exposureGain;
+    }
+
+    public void setExposureGain(int exposureGain) {
+        this.exposureGain = exposureGain;
+    }
+
+    public int getColorHue() {
+        return colorHue;
+    }
+
+    public void setColorHue(int colorHue) {
+        this.colorHue = colorHue;
+    }
+
+    public int getColorSaturation() {
+        return colorSaturation;
+    }
+
+    public void setColorSaturation(int colorSaturation) {
+        this.colorSaturation = colorSaturation;
+    }
+
+    public int getColorBrightness() {
+        return colorBrightness;
+    }
+
+    public void setColorBrightness(int colorBrightness) {
+        this.colorBrightness = colorBrightness;
+    }
+
+    public int getColorContrast() {
+        return colorContrast;
+    }
+
+    public void setColorContrast(int colorContrast) {
+        this.colorContrast = colorContrast;
+    }
+
+    public int getColorGamma() {
+        return colorGamma;
+    }
+
+    public void setColorGamma(int colorGamma) {
+        this.colorGamma = colorGamma;
+    }
+
+    public int getFocusMode() {
+        return focusMode;
+    }
+
+    public void setFocusMode(int focusMode) {
+        this.focusMode = focusMode;
+    }
+
+    public int getFocusPos() {
+        return focusPos;
+    }
+
+    public void setFocusPos(int focusPos) {
+        this.focusPos = focusPos;
+    }
+
+    public int getFocusAreaSize() {
+        return focusAreaSize;
+    }
+
+    public void setFocusAreaSize(int focusAreaSize) {
+        this.focusAreaSize = focusAreaSize;
+    }
+
+    public int getFocusHorizontal() {
+        return focusHorizontal;
+    }
+
+    public void setFocusHorizontal(int focusHorizontal) {
+        this.focusHorizontal = focusHorizontal;
+    }
+
+    public int getFocusVertical() {
+        return focusVertical;
+    }
+
+    public void setFocusVertical(int focusVertical) {
+        this.focusVertical = focusVertical;
     }
 
     @Override

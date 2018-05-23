@@ -12,7 +12,7 @@
         android:layout_height="30dp"
         android:layout_marginBottom="10dp"
         android:gravity="center"
-        android:text="白平衡"
+        android:text="@string/focus_mode_and_area"
         android:textColor="@android:color/white"
         android:background="@drawable/tv_camera_params_title_bg"/>
     <LinearLayout
@@ -25,9 +25,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="R"/>
+            android:text="@string/focus_position"/>
         <TextView
-            android:id="@+id/tv_red_value"
+            android:id="@+id/tv_position_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -35,7 +35,64 @@
             android:text="0"/>
     </LinearLayout>
     <SeekBar
-        android:id="@+id/sb_red"
+        android:id="@+id/sb_position"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="10"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/focus_mode_auto"/>
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/focus_mode_quick"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/focus_area_size"/>
+        <Spinner
+            android:id="@+id/spinner_area_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/focus_area_size_array"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/focus_area_horizontal"/>
+        <TextView
+            android:id="@+id/tv_horizontal_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="0"/>
+    </LinearLayout>
+    <SeekBar
+        android:id="@+id/sb_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="10"/>
@@ -49,9 +106,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="G"/>
+            android:text="@string/focus_area_vertical"/>
         <TextView
-            android:id="@+id/tv_green_value"
+            android:id="@+id/tv_vertical_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -59,31 +116,7 @@
             android:text="0"/>
     </LinearLayout>
     <SeekBar
-        android:id="@+id/sb_green"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="10"/>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp">
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="left"
-            android:text="B"/>
-        <TextView
-            android:id="@+id/tv_blue_value"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="right"
-            android:text="0"/>
-    </LinearLayout>
-    <SeekBar
-        android:id="@+id/sb_blue"
+        android:id="@+id/sb_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="10"/>
@@ -98,7 +131,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:text="应用"/>
+            android:text="@string/bt_save_settings"/>
         <Button
             android:id="@+id/bt_recovery_to_default"
             android:layout_width="0dp"
@@ -106,6 +139,6 @@
             android:layout_weight="1"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
-            android:text="默认"/>
+            android:text="@string/bt_recovery_to_default"/>
     </LinearLayout>
 </LinearLayout>

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.Switch;
 
 import com.afscope.ipcamera.R;
@@ -22,6 +23,9 @@ import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.fragments.PlayFragment;
 import com.afscope.ipcamera.utils.Toast;
 import com.afscope.ipcamera.utils.Utils;
+import com.afscope.ipcamera.viewbinding.ColorDialogBinding;
+import com.afscope.ipcamera.viewbinding.ExposureDialogBinding;
+import com.afscope.ipcamera.viewbinding.FocusDialogBinding;
 import com.afscope.ipcamera.viewbinding.WhiteBalanceDialogBinding;
 import com.afscope.ipcamera.views.ParamsBarLayout;
 import com.afscope.ipcamera.views.ParamsDialog;
@@ -62,6 +66,10 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     private ParamsDialog exposureParamsDialog;
     private ParamsDialog colorParamsDialog;
     private ParamsDialog focusParamsDialog;
+
+    //for test
+    @BindView(R.id.iv_explore)
+    ImageView iv_explore;
 
     @Override
     protected int getLayoutId() {
@@ -114,7 +122,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         }
 
         //for test
-        playFragment.setUrl("rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov");
+//        playFragment.setUrl("rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov");
+        playFragment.setUrl("rtsp://192.168.0.225:8553/PSIA/Streaming/channels/0?videoCodecType=H.264");
         playFragment.startPlaying();
     }
 
@@ -229,8 +238,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         if (exposureParamsDialog == null){
             exposureParamsDialog = new ParamsDialog(this,
                     view,
-                    R.layout.layout_while_balance_dialog,
-                    new WhiteBalanceDialogBinding(new ParametersBean()));
+                    R.layout.layout_exposure_params_dialog,
+                    new ExposureDialogBinding(new ParametersBean()));
             exposureParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
@@ -252,8 +261,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         if (colorParamsDialog == null){
             colorParamsDialog = new ParamsDialog(this,
                     view,
-                    R.layout.layout_while_balance_dialog,
-                    new WhiteBalanceDialogBinding(new ParametersBean()));
+                    R.layout.layout_color_params_dialog,
+                    new ColorDialogBinding(new ParametersBean()));
             colorParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
@@ -275,8 +284,15 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         if (focusParamsDialog == null){
             focusParamsDialog = new ParamsDialog(this,
                     view,
-                    R.layout.layout_while_balance_dialog,
-                    new WhiteBalanceDialogBinding(new ParametersBean()));
+                    R.layout.layout_focus_params_dialog,
+                    new FocusDialogBinding(new ParametersBean(),
+                            new FocusDialogBinding.FocusAreaChangedListener() {
+                        @Override
+                        public void onFocusAreaChanged(int width, int height) {
+                            Log.i(TAG, "onFocusAreaChanged: ");
+                            iv_explore.setImageResource(R.drawable.ic_color_adjust);
+                        }
+                    }));
             focusParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
