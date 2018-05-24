@@ -2,6 +2,7 @@ package com.afscope.ipcamera.wscontroller;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -17,12 +18,15 @@ import java.util.Map;
 /**
  * Created by Administrator on 2018/5/11 0011.
  *
+ * 指令的起始字符包括：A | C | D | F
+ * 结束字符为：E
+ *
  */
 public class CmdAndParamsCodec {
     private static final String TAG = "CmdAndParamsCodec";
 
     //登录验证 -- 指令以A 开头
-    private static final String CMD_LOGIN = "A&user=%s&pwd=%s&E ";   //示例：A&user=admin&pwd=admin&E
+    private static final String CMD_LOGIN = "A&user=%s&pwd=%s&E";   //示例：A&user=admin&pwd=admin&E
 
     //参数控制 -- 指令以C 开头
     //1、聚焦模式与区域
@@ -97,6 +101,26 @@ public class CmdAndParamsCodec {
      * 返回值：图片的base64编码
      */
     private static final String CMD_REQUEST_SHOOT = "F&E";
+
+    public static final String getLoginCmd(String user, String pwd){
+        return String.format(CMD_LOGIN, user, pwd);
+    }
+
+    public static final boolean isLoginCmd(@NonNull String cmd){
+        return /*!TextUtils.isEmpty(cmd) && */cmd.startsWith("A&");
+    }
+
+    public static final boolean isApplyParameterCmd(@NonNull String cmd){
+        return /*!TextUtils.isEmpty(cmd) && */cmd.startsWith("C&");
+    }
+
+    public static final boolean isRequestParametersCmd(@NonNull String cmd){
+        return /*!TextUtils.isEmpty(cmd) && */cmd.startsWith("D&");
+    }
+
+    public static final boolean isTakePhotoCmd(@NonNull String cmd){
+        return /*!TextUtils.isEmpty(cmd) && */cmd.startsWith("F&");
+    }
 
     public static final String getWhiteBalanceParamsCmd(ParametersBean bean){
         String param;

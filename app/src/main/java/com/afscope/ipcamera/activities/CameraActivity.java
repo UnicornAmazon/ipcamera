@@ -20,6 +20,7 @@ import android.widget.Switch;
 
 import com.afscope.ipcamera.R;
 import com.afscope.ipcamera.beans.ParametersBean;
+import com.afscope.ipcamera.common.Callback;
 import com.afscope.ipcamera.fragments.PlayFragment;
 import com.afscope.ipcamera.utils.Toast;
 import com.afscope.ipcamera.utils.Utils;
@@ -118,7 +119,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         //检查WebSocket 连接状态
         if (wsController.getStatus() != WsController.Status.STATUS_CONNECTED
                 && wsController.getStatus() != WsController.Status.STATUS_CONNECTING){
-            wsController.connect("ws://echo.websocket.org");
+//            wsController.connect("ws://echo.websocket.org");
+            wsController.connect("ws://192.168.0.225:1234");
         }
 
         //for test
@@ -175,15 +177,20 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             return;
         }
         if (wsController.getStatus() == WsController.Status.STATUS_CONNECTED){
-            wsController.sendMessage(CmdAndParamsCodec.getRequestParamsCmd());
+            wsController.sendCommand(CmdAndParamsCodec.getRequestParamsCmd(), new Callback<Callback.Result>() {
+                @Override
+                public void onResult(Result result) {
+                    Log.i(TAG, "onResult: " + result);
+                }
+            });
         } else {
             Log.e(TAG, "takePhoto: ");
             Toast.toast("未连接到相机！");
         }
         //for test
-        playFragment.takePicture(new File(
-                mediaFilesDir,
-                new SimpleDateFormat("HH_mm_ss").format(new Date())+".jpg").getAbsolutePath());
+//        playFragment.takePicture(new File(
+//                mediaFilesDir,
+//                new SimpleDateFormat("HH_mm_ss").format(new Date())+".jpg").getAbsolutePath());
     }
 
     private void startOrStopRecord(){

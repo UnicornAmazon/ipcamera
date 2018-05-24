@@ -37,6 +37,8 @@ import java.util.Date;
 /**
  * RTSP 测试地址：rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov
  *
+ * 开发板RTSP 地址：rtsp://192.168.1.222:8553/PSIA/Streaming/channels/0?videoCodecType=H.264
+ *
  */
 public class PlayFragment extends Fragment implements TextureView.SurfaceTextureListener {
     protected static final String TAG = "PlayFragment";
