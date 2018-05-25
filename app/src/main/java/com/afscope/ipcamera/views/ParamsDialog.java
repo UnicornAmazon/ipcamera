@@ -17,6 +17,7 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.viewbinding.ParamsDialogBinding;
 
 /**
@@ -98,6 +99,10 @@ public class ParamsDialog extends Dialog {
     public ParamsDialog setOuterOnDismissListener(OnDismissListener outerOnDismissListener) {
         this.outerOnDismissListener = outerOnDismissListener;
         return this;
+    }
+
+    public void refreshParams(ParametersBean bean){
+        dialogBinding.refreshParams(bean);
     }
 
     @Override

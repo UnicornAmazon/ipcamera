@@ -2,7 +2,6 @@ package com.afscope.ipcamera.activities;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -18,6 +17,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Switch;
 
+import com.afscope.ipcamera.MyApplication;
 import com.afscope.ipcamera.R;
 import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.common.Callback;
@@ -34,8 +34,6 @@ import com.afscope.ipcamera.wscontroller.CmdAndParamsCodec;
 import com.afscope.ipcamera.wscontroller.WsController;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
@@ -99,6 +97,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             playFragment = (PlayFragment) getSupportFragmentManager().findFragmentById(R.id.render_holder);
         }
         playFragment.setOnStateChangedListener(this);
+        playFragment.setUrl("rtsp://192.168.0.225:8553/PSIA/Streaming/channels/0?videoCodecType=H.264");
 
         if (wsController == null){
             wsController = WsController.getInstance();
@@ -117,16 +116,14 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         }
 
         //检查WebSocket 连接状态
-        if (wsController.getStatus() != WsController.Status.STATUS_CONNECTED
-                && wsController.getStatus() != WsController.Status.STATUS_CONNECTING){
+        if (!wsController.isConnected() && !wsController.isConnecting()){
 //            wsController.connect("ws://echo.websocket.org");
             wsController.connect("ws://192.168.0.225:1234");
         }
 
         //for test
 //        playFragment.setUrl("rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov");
-        playFragment.setUrl("rtsp://192.168.0.225:8553/PSIA/Streaming/channels/0?videoCodecType=H.264");
-        playFragment.startPlaying();
+//        playFragment.startPlaying();
     }
 
     @Override
@@ -223,7 +220,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             whiteBalanceParamsDialog = new ParamsDialog(this,
                     view,
                     R.layout.layout_while_balance_dialog,
-                    new WhiteBalanceDialogBinding(new ParametersBean()));
+                    new WhiteBalanceDialogBinding(MyApplication.getInstance().getParametersBean()));
             whiteBalanceParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
@@ -246,7 +243,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             exposureParamsDialog = new ParamsDialog(this,
                     view,
                     R.layout.layout_exposure_params_dialog,
-                    new ExposureDialogBinding(new ParametersBean()));
+                    new ExposureDialogBinding(MyApplication.getInstance().getParametersBean()));
             exposureParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
@@ -269,7 +266,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             colorParamsDialog = new ParamsDialog(this,
                     view,
                     R.layout.layout_color_params_dialog,
-                    new ColorDialogBinding(new ParametersBean()));
+                    new ColorDialogBinding(MyApplication.getInstance().getParametersBean()));
             colorParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
                 @Override
                 public void onShow(DialogInterface dialog) {
@@ -292,12 +289,13 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             focusParamsDialog = new ParamsDialog(this,
                     view,
                     R.layout.layout_focus_params_dialog,
-                    new FocusDialogBinding(new ParametersBean(),
+                    new FocusDialogBinding(
+                            MyApplication.getInstance().getParametersBean(),
                             new FocusDialogBinding.FocusAreaChangedListener() {
                         @Override
                         public void onFocusAreaChanged(int width, int height) {
                             Log.i(TAG, "onFocusAreaChanged: ");
-                            iv_explore.setImageResource(R.drawable.ic_color_adjust);
+
                         }
                     }));
             focusParamsDialog.setOuterOnShowListener(new DialogInterface.OnShowListener() {
@@ -406,10 +404,58 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
 
     }
 
+    /*----------------------------------- WebSocket 模块回调 ----------------------------------*/
     @Override
     public void onStatusChanged(WsController.Status status) {
         Log.i(TAG, "onStatusChanged: status: "+ WsController.Status.toString(status));
-
+        if (status == WsController.Status.STATUS_CONNECTED){
+            Toast.toast("连接摄像头成功！");
+        } else if (status == WsController.Status.STATUS_FAILURE){
+            Toast.toast("连接摄像头失败！");
+        } else if (status == WsController.Status.STATUS_LOGGED_IN){
+            //登录成功，更新摄像头参数
+            wsController.sendCommand(CmdAndParamsCodec.getRequestParamsCmd(),
+                    new Callback<Callback.Result>() {
+                        @Override
+                        public void onResult(Result result) {
+                            if (result.result){
+                                Log.i(TAG, "onStatusChanged, get params command after logged in, " +
+                                        "params: "+result.msg);
+                                final ParametersBean bean = CmdAndParamsCodec.decode2Bean(result.msg);
+                                if (bean != null){
+                                    MyApplication.getInstance().setParametersBean(bean);
+                                    //更新界面
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (whiteBalanceParamsDialog != null){
+                                                whiteBalanceParamsDialog.refreshParams(bean);
+                                            }
+                                            if (exposureParamsDialog != null){
+                                                exposureParamsDialog.refreshParams(bean);
+                                            }
+                                            if (colorParamsDialog != null){
+                                                colorParamsDialog.refreshParams(bean);
+                                            }
+                                            if (focusParamsDialog != null){
+                                                focusParamsDialog.refreshParams(bean);
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    Log.e(TAG, "onStatusChanged, params cannot be decoded to bean");
+                                    Toast.toast("解析摄像头参数失败！");
+                                }
+                            } else {
+                                Log.e(TAG, "onResult: onStatusChanged, get params failed: "+result);
+                            }
+                        }
+                    });
+        } else if (status == WsController.Status.STATUS_LOGIN_FAILED){
+            Toast.toast("登录失败！");
+        } else if (status == WsController.Status.STATUS_DISCONNECTED){
+            Toast.toast("连接已断开！");
+        }
     }
 
     @Override

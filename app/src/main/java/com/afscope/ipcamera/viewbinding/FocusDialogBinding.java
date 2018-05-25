@@ -51,7 +51,9 @@ public class FocusDialogBinding extends ParamsDialogBinding implements SeekBar.O
     }
 
     @Override
-    protected void setDefaultParamsToView(ParametersBean bean) {
+    public void refreshParams(ParametersBean bean) {
+        Log.i(TAG, "refreshParams: " + bean.getFocusParams());
+
 
     }
 

@@ -16,7 +16,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".activities.CameraActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize" >
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:keepScreenOn="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

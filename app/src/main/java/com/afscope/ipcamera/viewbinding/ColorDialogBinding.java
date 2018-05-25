@@ -1,6 +1,7 @@
 package com.afscope.ipcamera.viewbinding;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -57,14 +58,15 @@ public class ColorDialogBinding extends ParamsDialogBinding implements SeekBar.O
     }
 
     @Override
-    protected void setDefaultParamsToView(ParametersBean bean) {
-
+    public void refreshParams(ParametersBean bean) {
+        Log.i(TAG, "refreshParams: " + bean.getColorParams());
     }
 
     @Override
     protected String getParamsCmdString(boolean isDefault) {
         if (isDefault){
-
+            bean.setExposureMode(ParametersBean.WHITE_BALANCE_MODE_AUTO);
+            return CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean);
         } else {
             bean.setWhiteBalanceMode(ParametersBean.WHITE_BALANCE_MODE_MANUAL);
             bean.setWhiteBalanceRed(sb_hue.getProgress());
@@ -72,7 +74,6 @@ public class ColorDialogBinding extends ParamsDialogBinding implements SeekBar.O
             bean.setWhiteBalanceBlue(sb_brightness.getProgress());
             return CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean);
         }
-        return null;
     }
 
     @Override

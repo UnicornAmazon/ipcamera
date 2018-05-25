@@ -188,6 +188,9 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
 
     public void setUrl(String url) {
         this.mUrl = url;
+//        if (mSurfaceView.isAvailable()){
+//            startRending(mSurfaceView.getSurfaceTexture());
+//        }
     }
 
     public void startPlaying() throws IllegalStateException {
@@ -382,6 +385,9 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         Log.i(TAG, "onSurfaceTextureAvailable: ");
+        if (mUrl != null){
+            startRending(surface);
+        }
     }
 
     @Override

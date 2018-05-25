@@ -20,6 +20,7 @@ public class ParametersBean {
     private static final String TAG = "ParametersBean";
 
     //1、白平衡
+    public static final int WHITE_BALANCE_MODE_AUTO = 1;
     public static final int WHITE_BALANCE_MODE_MANUAL = 2;
     private int whiteBalanceMode;
     private int whiteBalanceRed;
@@ -50,6 +51,10 @@ public class ParametersBean {
 
     public int getWhiteBalanceMode(){
         return whiteBalanceMode;
+    }
+
+    public boolean isWhiteBalanceAutoMode(){
+        return whiteBalanceMode == WHITE_BALANCE_MODE_AUTO;
     }
 
     public int getWhiteBalanceRed(){
@@ -184,6 +189,43 @@ public class ParametersBean {
         this.focusVertical = focusVertical;
     }
 
+    public String getWhiteBalanceParams(){
+        StringBuilder builder = new StringBuilder()
+                .append("whiteBalanceMode: ").append(whiteBalanceMode)
+                .append("\n whiteBalanceRed: ").append(whiteBalanceRed)
+                .append("\n whiteBalanceGreen: ").append(whiteBalanceGreen)
+                .append("\n whiteBalanceBlue: ").append(whiteBalanceBlue);
+        return builder.toString();
+    }
+
+    public String getExposureParams(){
+        StringBuilder builder = new StringBuilder()
+                .append("exposureMode: ").append(exposureMode)
+                .append("\n exposureBright: ").append(exposureBright)
+                .append("\n exposureGain: ").append(exposureGain);
+        return builder.toString();
+    }
+
+    public String getColorParams(){
+        StringBuilder builder = new StringBuilder()
+                .append("colorHue: ").append(colorHue)
+                .append("\n colorSaturation: ").append(colorSaturation)
+                .append("\n colorBrightness: ").append(colorBrightness)
+                .append("\n colorContrast: ").append(colorContrast)
+                .append("\n colorGamma: ").append(colorGamma);
+        return builder.toString();
+    }
+
+    public String getFocusParams(){
+        StringBuilder builder = new StringBuilder()
+                .append("focusMode: ").append(focusMode)
+                .append("\n focusPos: ").append(focusPos)
+                .append("\n focusAreaSize: ").append(focusAreaSize)
+                .append("\n focusHorizontal: ").append(focusHorizontal)
+                .append("\n focusVertical: ").append(focusVertical);
+        return builder.toString();
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder()
@@ -194,6 +236,11 @@ public class ParametersBean {
                 .append("\n exposureMode: ").append(exposureMode)
                 .append("\n exposureBright: ").append(exposureBright)
                 .append("\n exposureGain: ").append(exposureGain)
+                .append("\n colorHue: ").append(colorHue)
+                .append("\n colorSaturation: ").append(colorSaturation)
+                .append("\n colorBrightness: ").append(colorBrightness)
+                .append("\n colorContrast: ").append(colorContrast)
+                .append("\n colorGamma: ").append(colorGamma)
                 .append("\n focusMode: ").append(focusMode)
                 .append("\n focusPos: ").append(focusPos)
                 .append("\n focusAreaSize: ").append(focusAreaSize)
@@ -222,7 +269,7 @@ public class ParametersBean {
             Field focusVertical = ParametersBean.class.getDeclaredField("focusVertical");
 
 
-            keyFieldMap.put("", whiteBalanceMode);
+//            keyFieldMap.put("", whiteBalanceMode);
             keyFieldMap.put("red", whiteBalanceRed);
             keyFieldMap.put("green", whiteBalanceGreen);
             keyFieldMap.put("blue", whiteBalanceBlue);

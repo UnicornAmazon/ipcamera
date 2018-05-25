@@ -14,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import java.io.File;
 
 import static com.afscope.ipcamera.common.Constants.COMPANY_NAME;
+import static com.afscope.ipcamera.common.Constants.LOG_FILES_DIR_NAME;
 import static com.afscope.ipcamera.common.Constants.MEDIA_FILES_DIR_NAME;
 
 /**
@@ -68,5 +69,30 @@ public class Utils {
 
     public static final File getMediaFilesDir(){
 		return new File(getAppExternalFilesDir(), MEDIA_FILES_DIR_NAME);
+	}
+
+	public static final File getLogFilesDir(){
+		return new File(getAppExternalFilesDir(), LOG_FILES_DIR_NAME);
+	}
+
+	//删除文件或目录
+	public static boolean deleteFile(File file){
+		if (!file.exists()) {
+			return true;
+		}
+
+		boolean result = true;
+
+		if (file.isDirectory()) {
+			for (File f : file.listFiles()) {
+				if (!deleteFile(f)) {
+					result = false;
+				}
+			}
+		} else {
+			result = file.delete();
+		}
+
+		return result;
 	}
 }

@@ -97,10 +97,9 @@ public class WsController {
         Log.i(TAG, "connect: url: " + url);
         mStatus = STATUS_CONNECTING;
         mRequest = new Request.Builder()
-//                .get()
+                .get()
                 .url(url)
-//                .addHeader("Connection","close")
-                .addHeader("Origin", "http://stackexchange.com")
+                .addHeader("Origin", "")
                 .build();
         if (mWebSocket != null){
             Log.w(TAG, "connect when current mWebSocket is not null");
@@ -132,6 +131,10 @@ public class WsController {
         return mStatus;
     }
 
+    public String getStatusStr(){
+        return Status.toString(mStatus);
+    }
+
     public boolean isConnected(){
         return mStatus == STATUS_LOGGED_IN
                 || mStatus == STATUS_CONNECTED
@@ -140,6 +143,10 @@ public class WsController {
 
     public boolean isConnecting(){
         return mStatus == STATUS_CONNECTING;
+    }
+
+    public boolean isLoggedIn(){
+        return mStatus == STATUS_LOGGED_IN;
     }
 
     public void sendCommand(@NonNull String cmd, Callback<Callback.Result> callback){
@@ -317,6 +324,8 @@ public class WsController {
                     return "STATUS_DISCONNECTED";
                 case STATUS_LOGGED_IN:
                     return "STATUS_LOGGED_IN";
+                case STATUS_LOGIN_FAILED:
+                    return "STATUS_LOGIN_FAILED";
                 default:
                     return "ERROR_STATUS";
             }

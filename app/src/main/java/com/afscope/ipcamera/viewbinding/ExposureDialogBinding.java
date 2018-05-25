@@ -1,6 +1,7 @@
 package com.afscope.ipcamera.viewbinding;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -47,8 +48,8 @@ public class ExposureDialogBinding extends ParamsDialogBinding implements SeekBa
     }
 
     @Override
-    protected void setDefaultParamsToView(ParametersBean bean) {
-
+    public void refreshParams(ParametersBean bean) {
+        Log.i(TAG, "refreshParams: " + bean.getExposureParams());
     }
 
     @Override

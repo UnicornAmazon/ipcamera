@@ -49,8 +49,17 @@ public class WhiteBalanceDialogBinding extends ParamsDialogBinding implements Se
     }
 
     @Override
-    protected void setDefaultParamsToView(ParametersBean bean) {
-
+    public void refreshParams(ParametersBean bean) {
+        Log.i(TAG, "refreshParams: " + bean.getWhiteBalanceParams());
+        if (bean.isWhiteBalanceAutoMode()){
+            sb_red.setProgress(0);
+            sb_green.setProgress(0);
+            sb_blue.setProgress(0);
+        } else {
+            sb_red.setProgress(bean.getWhiteBalanceRed());
+            sb_green.setProgress(bean.getWhiteBalanceGreen());
+            sb_blue.setProgress(bean.getWhiteBalanceBlue());
+        }
     }
 
     @Override
