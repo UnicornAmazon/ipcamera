@@ -95,4 +95,15 @@ public class Utils {
 
 		return result;
 	}
+
+	//将字节数组转换成十六进制字符串形式
+	public final static String bytesToHexStr(byte[] bytes){
+		StringBuilder builder = new StringBuilder();
+		String str = null;
+		for (byte b:bytes){
+			str = String.format("%02X ", b);
+			builder.append(str);
+		}
+		return builder.toString();
+	}
 }

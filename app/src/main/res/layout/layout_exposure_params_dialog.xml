@@ -27,10 +27,11 @@
             android:gravity="center_vertical"
             android:text="@string/exposure_auto"/>
         <Switch
-            android:id="@+id/switch_exposure_auto"
+            android:id="@+id/switch_exposure_mode"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:checked="true"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -56,8 +57,8 @@
         android:id="@+id/sb_exposure_target"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
-    <LinearLayout
+        android:max="@integer/exposure_brightness_max_value"/>
+   <!-- <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
@@ -81,7 +82,7 @@
         android:id="@+id/sb_exposure_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="10"/>-->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -106,12 +107,13 @@
         android:id="@+id/sb_gain"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/exposure_gain_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:gravity="center">
         <Button
             android:id="@+id/bt_save_params"
             android:layout_width="0dp"

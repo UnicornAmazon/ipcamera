@@ -38,20 +38,31 @@
         android:id="@+id/sb_position"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/focus_pos_max_value"
+        android:progress="@integer/focus_pos_default_value"/>
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
         <Button
+            android:id="@+id/bt_focus_mode_auto"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/focus_mode_auto"/>
         <Button
+            android:id="@+id/bt_focus_mode_quick"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/focus_mode_quick"/>
+        <Button
+            android:id="@+id/bt_focus_mode_manual"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/focus_area_manual"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -95,7 +106,7 @@
         android:id="@+id/sb_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/focus_horizontal_max_value_at_small_size"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -119,12 +130,13 @@
         android:id="@+id/sb_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/focus_vertical_max_value_at_small_size"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
+        android:layout_marginBottom="10dp"
+        android:gravity="center">
         <Button
             android:id="@+id/bt_save_params"
             android:layout_width="0dp"

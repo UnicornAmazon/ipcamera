@@ -40,7 +40,7 @@ public class CmdAndParamsCodec {
      * 参数说明：
      * 聚焦位置：pos
      */
-    private static final String CMD_PARAMETER_FOCUS_MODE = "C&a&s%&E";
+    private static final String CMD_PARAMETER_FOCUS_MODE = "C&a&%s&E";
     private static final String SUB_CMD_PARAMETER_FOCUS_MODE_MANUAL_MODE = "3&pos=%d";
 
     /**
@@ -52,6 +52,7 @@ public class CmdAndParamsCodec {
      * 1）区域大小area=x ，其中x值为：1——小；2——中；3——大
      * 2）水平值lever=x
      * 3）垂直值verti=x
+     * 4）对焦框facus=x，其中x值为：1——选中；0——未选中
      */
     private static final String CMD_PARAMETER_FOCUS_AREA = "C&b&area=%d&lever=%d&verti=%d&facus=%d&E";
 
@@ -132,7 +133,47 @@ public class CmdAndParamsCodec {
         } else {
             param = Integer.toString(bean.getWhiteBalanceMode());
         }
+
         return String.format(CMD_PARAMETER_WHITE_BALANCE, param);
+    }
+
+    public static final String getExposureParamsCmd(ParametersBean bean){
+        String param;
+        if (bean.isAutoExposureMode()){
+            param = Integer.toString(ParametersBean.EXPOSURE_MODE_AUTO);
+        } else {
+            param = String.format(SUB_CMD_PARAMETER_EXPOSURE_AND_GAIN_MANUAL_MODE,
+                    bean.getColorBrightness(),
+                    bean.getExposureGain());
+        }
+
+        return String.format(CMD_PARAMETER_WHITE_BALANCE, param);
+    }
+
+    public static final String getColorParamsCmd(ParametersBean bean){
+        return null;
+    }
+
+    public static final String getFocusModeParamsCmd(ParametersBean bean){
+        String param;
+        if (bean.isAutoFocusMode()){
+            param = Integer.toString(ParametersBean.FOCUS_MODE_AUTO);
+        } else if (bean.isQuickFocusMode()){
+            param = Integer.toString(ParametersBean.FOCUS_MODE_QUICK);
+        } else {
+            param = String.format(SUB_CMD_PARAMETER_FOCUS_MODE_MANUAL_MODE,
+                    bean.getFocusPos());
+        }
+
+        return String.format(CMD_PARAMETER_FOCUS_MODE, param);
+    }
+
+    public static final String getFocusAreaParamsCmd(ParametersBean bean){
+        return String.format(CMD_PARAMETER_FOCUS_AREA,
+                bean.getFocusAreaSize(),
+                bean.getFocusHorizontal(),
+                bean.getFocusVertical(),
+                0);
     }
 
     public static final String getRequestParamsCmd(){
@@ -180,7 +221,8 @@ public class CmdAndParamsCodec {
 
     public static final boolean isValidParametersStr(String params){
         if (TextUtils.isEmpty(params)) return false;
-        if (!params.matches("([a-zA-Z]+=[0-9]+)(&([a-zA-Z]+=[0-9]+))?")) return false;
+//        if (!params.matches("([a-zA-Z\\-]+=[0-9]+)(&([a-zA-Z\\-]+=[0-9]+))?&")) return false;
+        if (!params.matches("([a-zA-Z\\-]+=[0-9]+&)+")) return false;
         return true;
     }
 
@@ -189,5 +231,40 @@ public class CmdAndParamsCodec {
         if (TextUtils.isEmpty(base64)) return null;
         byte[] bytes = Base64.decode(base64, Base64.NO_WRAP);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    /**
+     * 登录指令：A&user=admin&pwd=admin&E
+     * 返回：成功：enter success!
+     * 失败：user or pwd is error!
+     *
+     * 设置参数指令：C&d&1&E
+     * 返回：set ok!
+     * 如果未登录，则返回：Please log in first
+     *
+     * 获取参数指令：D&e&E
+     * 返回：pos=0&msqh=1&qydx=1&lever=4&verti=4&facus=1&qh=1&red=3&green=3&blue=3&qh=1&bright=4&zengyi=4&bin=1&skip=0&rate=10&frame-rate=10&
+     *
+     * @param cmd
+     * @param response
+     * @return
+     */
+    public static final boolean isCmdResponseSuccess(@NonNull String cmd, String response){
+        if (CmdAndParamsCodec.isLoginCmd(cmd)){
+            if (TextUtils.isEmpty(response) || !response.contains("success")){
+                return false;
+            }
+        } else if (CmdAndParamsCodec.isApplyParameterCmd(cmd)){
+            if (TextUtils.isEmpty(response) || !response.contains("ok")){
+                return false;
+            }
+        } else if (CmdAndParamsCodec.isRequestParametersCmd(cmd)){
+            return CmdAndParamsCodec.isValidParametersStr(response);
+        } else if (CmdAndParamsCodec.isTakePhotoCmd(cmd)){
+            if (TextUtils.isEmpty(response) || response.contains("invalid")){
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -1,8 +1,12 @@
 package com.afscope.ipcamera.fragments;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -16,15 +20,17 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.afscope.ipcamera.R;
-import com.afscope.ipcamera.utils.Toast;
 import com.afscope.ipcamera.utils.Utils;
 
 import org.easydarwin.video.Client;
 import org.easydarwin.video.EasyPlayerClient;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -42,11 +48,7 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
 
     public static final int RESULT_REND_STOPED = -1;
 
-    //转录视频状态
-    public static final int RECORD_STATE_BEGIN = 1001;
-    public static final int RECORD_STATE_END = 1002;
-
-    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yy_MM_dd HH_mm_ss");
 
     /**
      * 等比例,最大化区域显示,不裁剪
@@ -77,13 +79,14 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     protected int mHeight;
     protected View.OnLayoutChangeListener listener;
     protected TextureView mSurfaceView;
+    private MediaScannerConnection mScanner;
 
     private int mRatioType = ASPACT_RATIO_INSIDE;
 
     private OnStateChangedListener stateChangedListener;
     public interface OnStateChangedListener {
-        void onRenderStateChanged(int state);
-        void onRecordStateChanged(int state);
+        void onRenderStateChanged(int status);
+        void onRecordStateChanged(int status);
     }
 
     public void setOnStateChangedListener(OnStateChangedListener listener){
@@ -102,20 +105,23 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         Log.i(TAG, "onViewCreated: ");
+
         mSurfaceView = (TextureView) view.findViewById(R.id.surface_view);
         mSurfaceView.setOpaque(false);
         mSurfaceView.setSurfaceTextureListener(this);
-        //注册到EasyPlayerClient 的回调
         mResultReceiver = new ResultReceiver(new Handler()) {
             @Override
             protected void onReceiveResult(int resultCode, Bundle resultData) {
                 super.onReceiveResult(resultCode, resultData);
-                Log.i(TAG, "onReceiveResult: resultCode = " + resultCode + ", resultData: " + resultData);
+                Log.i(TAG, "onReceiveResult: resultCode = " + resultCode);
                 if (resultCode == EasyPlayerClient.RESULT_VIDEO_DISPLAYED) {
+
                     onVideoDisplayed();
                 } else if (resultCode == EasyPlayerClient.RESULT_VIDEO_SIZE) {
                     mWidth = resultData.getInt(EasyPlayerClient.EXTRA_VIDEO_WIDTH);
                     mHeight = resultData.getInt(EasyPlayerClient.EXTRA_VIDEO_HEIGHT);
+
+
                     onVideoSizeChange();
                 } else if (resultCode == EasyPlayerClient.RESULT_TIMEOUT) {
                     new AlertDialog.Builder(getActivity()).setMessage("试播时间到").setTitle("SORRY").setPositiveButton(android.R.string.ok, null).show();
@@ -125,17 +131,20 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
                     new AlertDialog.Builder(getActivity()).setMessage("视频格式不支持").setTitle("SORRY").setPositiveButton(android.R.string.ok, null).show();
                 }else if (resultCode == EasyPlayerClient.RESULT_EVENT){
 //                    Log.i(TAG, "onReceiveResult: ");
-//                    int errorcode = resultData.getInt("errorcode");
+                    int errorcode = resultData.getInt("errorcode");
 //                    if (errorcode != 0){
 //                        stopRending();
 //                    }
+//                    if (activity instanceof PlayActivity) {
+//                        ((PlayActivity)activity).onEvent(PlayFragment.this, errorcode, resultData.getString("event-msg"));
+//                    }
                 }else if (resultCode == EasyPlayerClient.RESULT_RECORD_BEGIN){
                     if (stateChangedListener != null){
-                        stateChangedListener.onRecordStateChanged(RECORD_STATE_BEGIN);
+                        stateChangedListener.onRecordStateChanged(1);
                     }
                 }else if (resultCode == EasyPlayerClient.RESULT_RECORD_END){
                     if (stateChangedListener != null){
-                        stateChangedListener.onRecordStateChanged(RECORD_STATE_END);
+                        stateChangedListener.onRecordStateChanged(-1);
                     }
                 }
             }
@@ -143,12 +152,10 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
 
         listener = new View.OnLayoutChangeListener() {
             @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                Log.d(TAG, String.format("onLayoutChange left:%d,top:%d,right:%d,bottom:%d" +
-                        "->oldLeft:%d,oldTop:%d,oldRight:%d,oldBottom:%d",
-                        left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom));
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                Log.d(TAG, String.format("onLayoutChange left:%d,top:%d,right:%d,bottom:%d->oldLeft:%d,oldTop:%d,oldRight:%d,oldBottom:%d", left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom));
                 if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+
                     onVideoSizeChange();
                 }
             }
@@ -214,7 +221,6 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     private void startRending(SurfaceTexture surface) {
         if (mUrl == null){
             Log.e(TAG, "startRending: mUrl is null");
-            Toast.toast("错误：未设置视频源URL地址！");
             return;
         }
         mStreamRender = new EasyPlayerClient(getContext(), KEY, new Surface(surface), mResultReceiver);
@@ -223,13 +229,13 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
         try {
             mStreamRender.start(mUrl,
                     Client.TRANSTYPE_TCP,
-                    Client.EASY_SDK_VIDEO_FRAME_FLAG /*| Client.EASY_SDK_AUDIO_FRAME_FLAG*/,
+                    Client.EASY_SDK_VIDEO_FRAME_FLAG | Client.EASY_SDK_AUDIO_FRAME_FLAG,
                     "",
                     "");
             notifyRenderStateChanged(RESULT_REND_STARTED);
         }catch (Exception e){
             Log.e(TAG, "startRending: error when start rendering ", e);
-            Toast.toast("播放视频时出现异常！");
+            Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -249,25 +255,20 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     }
 
     public boolean startOrStopRecord() throws IllegalAccessException {
+        Log.i(TAG, "startOrStopRecord: ");
         if (!mStreamRender.isRecording()) {
             File mediaFilesDir = Utils.getMediaFilesDir();
             if (!mediaFilesDir.exists() && !mediaFilesDir.mkdirs()){
                 Log.e(TAG, "startOrStopRecord: media files dir not exists, and cannot be created");
                 throw new IllegalAccessException("cannot create media files dir for saving record file");
             }
-            Log.i(TAG, "startOrStopRecord: start record, files dir: " + mediaFilesDir.getAbsolutePath());
             mStreamRender.startRecord(new File(mediaFilesDir,
-                    dateFormat.format(new Date()) + ".mp4").getAbsolutePath());
+                    dateFormat.format(new Date()) + ".mp4").getPath());
             return true;
         } else {
-            Log.i(TAG, "startOrStopRecord: stop record ");
             mStreamRender.stopRecord();
             return false;
         }
-    }
-
-    public boolean isRecording(){
-        return mStreamRender.isRecording();
     }
 
     public void setScaleType(@IntRange(from = ASPACT_RATIO_INSIDE, to = FILL_WINDOW) int type){
@@ -284,7 +285,7 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     }
 
     private void onVideoSizeChange() {
-        Log.i(TAG, String.format("onVideoSizeChange, RESULT_VIDEO_SIZE RECEIVED :%d*%d", mWidth, mHeight));
+        Log.i(TAG, String.format("RESULT_VIDEO_SIZE RECEIVED :%d*%d", mWidth, mHeight));
         if (mWidth == 0 || mHeight == 0) return;
         if (mRatioType == ASPACT_RATIO_CROPE_MATRIX) {
             ViewGroup parent = (ViewGroup) getView().getParent();
@@ -406,6 +407,106 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
 
     }
     /*--------------------------  实现SurfaceTextureListener 接口  End  -------------------------*/
+
+    /**
+     * 抓拍
+     * @param path
+     */
+    public void takePicture(final String path) {
+        try {
+            if (mWidth <= 0 || mHeight <= 0) {
+                return;
+            }
+            Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+            mSurfaceView.getBitmap(bitmap);
+            saveBitmapInFile(path, bitmap);
+            bitmap.recycle();
+        } catch (OutOfMemoryError error) {
+            error.printStackTrace();
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static Bitmap decodeSampledBitmapFromResource(String path,
+                                                         int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+
+    private void saveBitmapInFile(final String path, Bitmap bitmap) {
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, fos);
+            if (mScanner == null) {
+                MediaScannerConnection connection = new MediaScannerConnection(getContext(),
+                        new MediaScannerConnection.MediaScannerConnectionClient() {
+                            public void onMediaScannerConnected() {
+                                mScanner.scanFile(path, null /* mimeType */);
+                            }
+
+                            public void onScanCompleted(String path1, Uri uri) {
+                                if (path1.equals(path)) {
+                                    mScanner.disconnect();
+                                    mScanner = null;
+                                }
+                            }
+                        });
+                try {
+                    connection.connect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                mScanner = connection;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (OutOfMemoryError error) {
+            error.printStackTrace();
+        } finally {
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     public boolean toggleAudioEnable() {
         if (mStreamRender == null) {

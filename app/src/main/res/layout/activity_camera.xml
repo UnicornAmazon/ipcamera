@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     tools:context="com.afscope.ipcamera.activities.CameraActivity">
 
     <RelativeLayout
@@ -27,7 +28,17 @@
             android:layout_centerInParent="true"
             android:src="@drawable/ic_take_photo"
             android:scaleType="centerInside"/>
-        
+
+        <Chronometer
+            android:id="@+id/chronometer_record_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_toRightOf="@id/iv_capture_or_record"
+            android:layout_marginLeft="15dp"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/white"
+            android:visibility="gone"/>
+
         <Switch
             android:id="@+id/switch_capture_or_record"
             android:layout_width="wrap_content"

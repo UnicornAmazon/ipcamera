@@ -2,7 +2,6 @@ package com.afscope.ipcamera.viewbinding;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -10,6 +9,7 @@ import com.afscope.ipcamera.R;
 import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.wscontroller.CmdAndParamsCodec;
 
+import butterknife.BindInt;
 import butterknife.BindView;
 
 /**
@@ -32,8 +32,12 @@ public class WhiteBalanceDialogBinding extends ParamsDialogBinding implements Se
     @BindView(R.id.sb_blue)
     SeekBar sb_blue;
 
+    @BindInt(R.integer.white_balance_rgb_default_value)
+    int rgbDefaultValue;
+
     public WhiteBalanceDialogBinding(@NonNull ParametersBean bean) {
         super(bean);
+        Log.i(TAG, "WhiteBalanceDialogBinding: white balance params: " + bean.getWhiteBalanceParams());
     }
 
     @Override
@@ -65,15 +69,15 @@ public class WhiteBalanceDialogBinding extends ParamsDialogBinding implements Se
     @Override
     protected String getParamsCmdString(boolean isDefault) {
         if (isDefault){
-
-        } else {
             bean.setWhiteBalanceMode(ParametersBean.WHITE_BALANCE_MODE_MANUAL);
-            bean.setWhiteBalanceRed(sb_red.getProgress());
-            bean.setWhiteBalanceGreen(sb_green.getProgress());
-            bean.setWhiteBalanceBlue(sb_blue.getProgress());
-            return CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean);
+            bean.setWhiteBalanceRed(rgbDefaultValue);
+            bean.setWhiteBalanceGreen(rgbDefaultValue);
+            bean.setWhiteBalanceBlue(rgbDefaultValue);
+            sb_red.setProgress(rgbDefaultValue);
+            sb_green.setProgress(rgbDefaultValue);
+            sb_blue.setProgress(rgbDefaultValue);
         }
-        return null;
+        return CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean);
     }
 
     @Override
@@ -96,5 +100,22 @@ public class WhiteBalanceDialogBinding extends ParamsDialogBinding implements Se
     public void onStartTrackingTouch(SeekBar seekBar) {}
 
     @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {}
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        int progress = seekBar.getProgress();
+        Log.i(TAG, "onStopTrackingTouch: progress = " + progress);
+        bean.setWhiteBalanceMode(ParametersBean.WHITE_BALANCE_MODE_MANUAL);
+        switch (seekBar.getId()){
+            case R.id.sb_red:
+                bean.setWhiteBalanceRed(progress);
+                break;
+            case R.id.sb_green:
+                bean.setWhiteBalanceGreen(progress);
+                break;
+            case R.id.sb_blue:
+                bean.setWhiteBalanceBlue(progress);
+                break;
+        }
+//        wsController.sendCommand(CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean));
+        sendCommand(CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean));
+    }
 }

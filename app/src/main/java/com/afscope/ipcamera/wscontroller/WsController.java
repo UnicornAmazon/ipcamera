@@ -149,6 +149,18 @@ public class WsController {
         return mStatus == STATUS_LOGGED_IN;
     }
 
+    //仅发送指令，不管结果
+    public boolean sendCommand(@NonNull String cmd){
+        if (mWebSocket == null){
+            Log.e(TAG, "sendCommand: mWebSocket is null");
+            return false;
+        }
+        Log.i(TAG, "sendCommand: " + cmd);
+
+        mWebSocket.send(cmd);
+        return true;
+    }
+
     public void sendCommand(@NonNull String cmd, Callback<Callback.Result> callback){
         sendCommand(cmd, DEFAULT_SEND_CMD_TIMEOUT, callback);
     }
@@ -160,6 +172,10 @@ public class WsController {
      * @param callback  如果结果正常，Result 中result 为true ，msg 为返回内容；如果失败，为false ，msg 为出错信息
      */
     public void sendCommand(@NonNull final String cmd, final long timeout, final Callback<Callback.Result> callback){
+        if (mWebSocket == null){
+            callback.onResult(new Callback.Result(false, "mWebSocket is null, may not connected"));
+            return;
+        }
         cmdHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -173,50 +189,20 @@ public class WsController {
                     } else {
                         //检查返回字符串
                         callback.onResult(new Callback.Result(
-                                isResponseSuccess(cmd, cmdResponse),
+                                CmdAndParamsCodec.isCmdResponseSuccess(cmd, cmdResponse),
                                 cmdResponse));
                     }
 
                     cmdResponse = null;
                 } catch (InterruptedException e) {
                     Log.i(TAG, "sendCommand: InterruptedException when await cmd response condition");
+                    callback.onResult(new Callback.Result(false, "exception happened"));
                 } finally {
                     cmdLock.unlock();
                 }
 
             }
         });
-    }
-
-    /**
-     * 登录指令：A&user=admin&pwd=admin&E
-     * 返回：成功：enter success!
-     * 失败：user or pwd is error!
-     *
-     * 设置参数指令：C&d&1&E
-     * 返回：set ok!
-     * 如果未登录，则返回：Please log in first
-     *
-     * 获取参数指令：D&e&E
-     * 返回：pos=0&msqh=1&qydx=1&lever=4&verti=4&facus=1&qh=1&red=3&green=3&blue=3&qh=1&bright=4&zengyi=4&bin=1&skip=0&rate=10&frame-rate=10&
-     *
-     * @param cmd
-     * @param response
-     * @return
-     */
-    private boolean isResponseSuccess(@NonNull String cmd, String response){
-        if (CmdAndParamsCodec.isLoginCmd(cmd)){
-            if (TextUtils.isEmpty(response) || !response.contains("success")){
-                return false;
-            }
-        } else if (CmdAndParamsCodec.isApplyParameterCmd(cmd)){
-            if (TextUtils.isEmpty(response) || !response.contains("ok")){
-                return false;
-            }
-        } else if (CmdAndParamsCodec.isRequestParametersCmd(cmd)){
-            return CmdAndParamsCodec.isValidParametersStr(response);
-        }
-        return true;
     }
 
 //    public void sendMessage(String msg){
@@ -258,7 +244,11 @@ public class WsController {
 
         @Override
         public void onMessage(WebSocket webSocket, String text) {
-            Log.i(TAG, "onMessage: text: "+text);
+            if (text.length() < 64){
+                Log.i(TAG, "onMessage: text: "+text);
+            } else {
+                Log.i(TAG, "onMessage: text is too long, may be photo base64 str ");
+            }
 //            if (mStatusListener != null){
 //                mStatusListener.onMessage(text);
 //            }

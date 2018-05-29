@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    参数默认值与取值范围：
+    1、白平衡：
+       默认值：R：0  G：0   B：0
+       取值范围：R：0-4095  G：0-4095  B：0-4095
+
+    2、曝光与增益：
+       自动曝光时，曝光目标亮度: 默认值：56  取值范围：0-100
+       手动曝光时，增益：默认值：1  取值范围：0-50
+
+    3、颜色调整：
+       锐度：默认值：4    取值范围：0-15
+       对比度：默认值：0  取值范围：0-15
+       伽玛：默认值：1  取值范围：0-3
+
+    4、聚焦模式与区域：
+       聚焦位置：默认值：0
+       取值范围：-200~200
+
+       区域大小：
+       区域为小框时
+          水平：默认值：8   取值范围：0-16
+          垂直：默认值：7   取值范围：0-14；
+       区域为大框时
+          水平：默认值：2 取值范围： 0-4
+          垂直：默认值：2  取值范围：0-4
+    -->
+
+    <!-- 白平衡 -->
+    <integer name="white_balance_rgb_default_value">0</integer>
+    <integer name="white_balance_rgb_max_value">4095</integer>
+
+    <!-- 曝光与增益 -->
+    <integer name="exposure_brightness_default_value">56</integer>
+    <integer name="exposure_gain_default_value">1</integer>
+    <integer name="exposure_brightness_max_value">100</integer>
+    <integer name="exposure_gain_max_value">50</integer>
+
+    <!-- 颜色调整 -->
+    <integer name="color_sharpness_default_value">4</integer>
+    <integer name="color_contrast_default_value">0</integer>
+    <integer name="color_gamma_default_value">1</integer>
+    <integer name="color_sharpness_max_value">15</integer>
+    <integer name="color_contrast_max_value">15</integer>
+    <integer name="color_gamma_max_value">3</integer>
+
+    <!-- 聚焦模式与区域 -->
+    <!-- 聚焦位置取值范围为-200~200 ，手动聚焦模式下默认值为0，由于SeekBar 无法设置min 值为负值，
+         所以全部设置为正值，然后进行校正 -->
+    <integer name="focus_pos_default_value">200</integer>
+    <integer name="focus_pos_max_value">400</integer>
+    <integer name="focus_horizontal_default_value_at_small_size">8</integer>
+    <integer name="focus_vertical_default_value_at_small_size">7</integer>
+    <integer name="focus_horizontal_default_value_at_large_size">2</integer>
+    <integer name="focus_vertical_default_value_at_large_size">2</integer>
+    <integer name="focus_horizontal_max_value_at_small_size">16</integer>
+    <integer name="focus_vertical_max_value_at_small_size">14</integer>
+    <integer name="focus_horizontal_max_value_at_large_size">4</integer>
+    <integer name="focus_vertical_max_value_at_large_size">4</integer>
+</resources>

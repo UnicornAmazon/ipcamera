@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -13,6 +14,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.Chronometer;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -34,6 +36,8 @@ import com.afscope.ipcamera.wscontroller.CmdAndParamsCodec;
 import com.afscope.ipcamera.wscontroller.WsController;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnCheckedChanged;
@@ -61,14 +65,16 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     private PlayFragment playFragment;
     private WsController wsController;
 
-    private ParamsDialog whiteBalanceParamsDialog;
-    private ParamsDialog exposureParamsDialog;
-    private ParamsDialog colorParamsDialog;
-    private ParamsDialog focusParamsDialog;
+    private HashMap<String, ParamsDialog> paramsDialogMap = new HashMap<>();
+//    private ParamsDialog whiteBalanceParamsDialog;
+//    private ParamsDialog exposureParamsDialog;
+//    private ParamsDialog colorParamsDialog;
+//    private ParamsDialog focusParamsDialog;
 
-    //for test
     @BindView(R.id.iv_explore)
     ImageView iv_explore;
+    @BindView(R.id.chronometer_record_timer)
+    Chronometer chronometer_record_timer;
 
     @Override
     protected int getLayoutId() {
@@ -97,6 +103,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             playFragment = (PlayFragment) getSupportFragmentManager().findFragmentById(R.id.render_holder);
         }
         playFragment.setOnStateChangedListener(this);
+        //for test
+//        playFragment.setUrl("rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov");
         playFragment.setUrl("rtsp://192.168.0.225:8553/PSIA/Streaming/channels/0?videoCodecType=H.264");
 
         if (wsController == null){
@@ -120,27 +128,21 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
 //            wsController.connect("ws://echo.websocket.org");
             wsController.connect("ws://192.168.0.225:1234");
         }
+    }
 
-        //for test
-//        playFragment.setUrl("rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov");
-//        playFragment.startPlaying();
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i(TAG, "onDestroy: ");
+        wsController.release();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.i(TAG, "onConfigurationChanged: newConfig: " + newConfig);
-        if (colorParamsDialog != null){
-            colorParamsDialog.onConfigurationChanged(newConfig);
-        }
-        if (exposureParamsDialog != null){
-            exposureParamsDialog.onConfigurationChanged(newConfig);
-        }
-        if (colorParamsDialog != null){
-            colorParamsDialog.onConfigurationChanged(newConfig);
-        }
-        if (focusParamsDialog != null){
-            focusParamsDialog.onConfigurationChanged(newConfig);
+        for (Map.Entry<String, ParamsDialog> entry : paramsDialogMap.entrySet()){
+            entry.getValue().onConfigurationChanged(newConfig);
         }
     }
 
@@ -163,7 +165,18 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @OnCheckedChanged(R.id.switch_capture_or_record)
     void switchMode(boolean isChecked){
         Log.i(TAG, "switchMode: isChecked ? " + isChecked);
-
+        if (!isChecked){
+            //切换到拍照 -- 可能在视频转录过程中切换
+            chronometer_record_timer.stop();
+            chronometer_record_timer.setVisibility(View.GONE);
+            if (playFragment.isRecording()){
+                try {
+                    playFragment.startOrStopRecord();
+                } catch (IllegalAccessException e) {
+                    Log.e(TAG, "switchMode: error: " + e);
+                }
+            }
+        }
     }
 
     private void takePhoto(){
@@ -173,26 +186,45 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Log.e(TAG, "takePhoto:  media files dir not exists, and cannot be created");
             return;
         }
-        if (wsController.getStatus() == WsController.Status.STATUS_CONNECTED){
-            wsController.sendCommand(CmdAndParamsCodec.getRequestParamsCmd(), new Callback<Callback.Result>() {
+        if (wsController.isLoggedIn()){
+            wsController.sendCommand(CmdAndParamsCodec.getRequestShootCmd(), new Callback<Callback.Result>() {
                 @Override
                 public void onResult(Result result) {
-                    Log.i(TAG, "onResult: " + result);
+                    if (result.result){
+                        Log.i(TAG, "takePhoto, onResult: success");
+                        //保存图像
+                        final Bitmap bitmap = CmdAndParamsCodec.decodeBase64StrToBitmap(result.msg);
+                        if (bitmap != null){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    iv_explore.setImageBitmap(bitmap);
+                                }
+                            });
+                        } else {
+                            Log.e(TAG, "takePhoto, onResult: decode bitmap failed");
+                            Toast.toast("解析图片失败！");
+                        }
+                    } else {
+                        Log.e(TAG, "takePhoto, onResult: " + result);
+                        Toast.toast("拍照出现异常：" + result.msg);
+                    }
                 }
             });
         } else {
-            Log.e(TAG, "takePhoto: ");
+            Log.e(TAG, "takePhoto: error websocket status: " + wsController.getStatusStr());
             Toast.toast("未连接到相机！");
         }
-        //for test
-//        playFragment.takePicture(new File(
-//                mediaFilesDir,
-//                new SimpleDateFormat("HH_mm_ss").format(new Date())+".jpg").getAbsolutePath());
     }
 
     private void startOrStopRecord(){
-        Log.i(TAG, "startOrStopRecord: ");
+        if (!Utils.isWifiConnected(this)){
+            Log.e(TAG, "startOrStopRecord: wifi is not connected");
+            Toast.toast("请检查手机Wifi 连接！");
+            return;
+        }
         try {
+            Log.i(TAG, "startOrStopRecord: ");
             playFragment.startOrStopRecord();
         } catch (IllegalAccessException e) {
             Log.e(TAG, "startOrStopRecord: error: " + e);
@@ -216,6 +248,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @OnClick(R.id.iv_white_balance)
     void showWhiteBalanceSettings(View view){
         Log.i(TAG, "showWhiteBalanceSettings: ");
+        ParamsDialog whiteBalanceParamsDialog = paramsDialogMap.get("white_balance");
         if (whiteBalanceParamsDialog == null){
             whiteBalanceParamsDialog = new ParamsDialog(this,
                     view,
@@ -232,6 +265,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                     ll_header.hideAfterAWhile();
                 }
             });
+
+            paramsDialogMap.put("white_balance", whiteBalanceParamsDialog);
         }
         whiteBalanceParamsDialog.show();
     }
@@ -239,6 +274,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @OnClick(R.id.iv_exposure_and_gain)
     void showExposureSettings(View view){
         Log.i(TAG, "showExposureSettings: ");
+        ParamsDialog exposureParamsDialog = paramsDialogMap.get("exposure");
         if (exposureParamsDialog == null){
             exposureParamsDialog = new ParamsDialog(this,
                     view,
@@ -255,6 +291,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                     ll_header.hideAfterAWhile();
                 }
             });
+
+            paramsDialogMap.put("exposure", exposureParamsDialog);
         }
         exposureParamsDialog.show();
     }
@@ -262,6 +300,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @OnClick(R.id.iv_color_adjust)
     void showColorSettings(View view){
         Log.i(TAG, "showColorSettings: ");
+        ParamsDialog colorParamsDialog = paramsDialogMap.get("color");
         if (colorParamsDialog == null){
             colorParamsDialog = new ParamsDialog(this,
                     view,
@@ -278,6 +317,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                     ll_header.hideAfterAWhile();
                 }
             });
+
+            paramsDialogMap.put("color", colorParamsDialog);
         }
         colorParamsDialog.show();
     }
@@ -285,6 +326,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @OnClick(R.id.iv_focus)
     void showFocusSettings(View view){
         Log.i(TAG, "showFocusSettings: ");
+        ParamsDialog focusParamsDialog = paramsDialogMap.get("focus");
         if (focusParamsDialog == null){
             focusParamsDialog = new ParamsDialog(this,
                     view,
@@ -309,6 +351,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                     ll_header.hideAfterAWhile();
                 }
             });
+
+            paramsDialogMap.put("focus", focusParamsDialog);
         }
         focusParamsDialog.show();
     }
@@ -399,19 +443,40 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     }
 
     @Override
-    public void onRecordStateChanged(int status) {
-        Log.i(TAG, "onRecordStateChanged: status = " + status);
-
+    public void onRecordStateChanged(int state) {
+        Log.i(TAG, "onRecordStateChanged: state = " + state);
+        switch (state){
+            case PlayFragment.RECORD_STATE_BEGIN:
+                chronometer_record_timer.setVisibility(View.VISIBLE);
+                chronometer_record_timer.setBase(SystemClock.elapsedRealtime());
+                chronometer_record_timer.start();
+                break;
+            case PlayFragment.RECORD_STATE_END:
+                chronometer_record_timer.stop();
+                chronometer_record_timer.setVisibility(View.GONE);
+                break;
+            default:
+                Log.e(TAG, "onRecordStateChanged: error state: " + state);
+                break;
+        }
     }
 
     /*----------------------------------- WebSocket 模块回调 ----------------------------------*/
     @Override
     public void onStatusChanged(WsController.Status status) {
-        Log.i(TAG, "onStatusChanged: status: "+ WsController.Status.toString(status));
+        Log.i(TAG, "onStatusChanged: status: "+ wsController.getStatusStr());
         if (status == WsController.Status.STATUS_CONNECTED){
             Toast.toast("连接摄像头成功！");
         } else if (status == WsController.Status.STATUS_FAILURE){
             Toast.toast("连接摄像头失败！");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Map.Entry<String, ParamsDialog> entry : paramsDialogMap.entrySet()){
+                        entry.getValue().setEnabled(false);
+                    }
+                }
+            });
         } else if (status == WsController.Status.STATUS_LOGGED_IN){
             //登录成功，更新摄像头参数
             wsController.sendCommand(CmdAndParamsCodec.getRequestParamsCmd(),
@@ -428,17 +493,10 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                                     runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (whiteBalanceParamsDialog != null){
-                                                whiteBalanceParamsDialog.refreshParams(bean);
-                                            }
-                                            if (exposureParamsDialog != null){
-                                                exposureParamsDialog.refreshParams(bean);
-                                            }
-                                            if (colorParamsDialog != null){
-                                                colorParamsDialog.refreshParams(bean);
-                                            }
-                                            if (focusParamsDialog != null){
-                                                focusParamsDialog.refreshParams(bean);
+                                            for (Map.Entry<String, ParamsDialog> entry :
+                                                    paramsDialogMap.entrySet()){
+                                                entry.getValue().setEnabled(true);
+                                                entry.getValue().refreshParams(bean);
                                             }
                                         }
                                     });
@@ -447,7 +505,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                                     Toast.toast("解析摄像头参数失败！");
                                 }
                             } else {
-                                Log.e(TAG, "onResult: onStatusChanged, get params failed: "+result);
+                                Log.e(TAG, "onStatusChanged, get params failed: "+result);
                             }
                         }
                     });
@@ -455,6 +513,14 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Toast.toast("登录失败！");
         } else if (status == WsController.Status.STATUS_DISCONNECTED){
             Toast.toast("连接已断开！");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (Map.Entry<String, ParamsDialog> entry : paramsDialogMap.entrySet()){
+                        entry.getValue().setEnabled(false);
+                    }
+                }
+            });
         }
     }
 

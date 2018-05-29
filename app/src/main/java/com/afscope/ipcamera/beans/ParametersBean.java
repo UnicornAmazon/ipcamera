@@ -22,14 +22,15 @@ public class ParametersBean {
     //1、白平衡
     public static final int WHITE_BALANCE_MODE_AUTO = 1;
     public static final int WHITE_BALANCE_MODE_MANUAL = 2;
-    private int whiteBalanceMode;
+    private int whiteBalanceMode = WHITE_BALANCE_MODE_AUTO;
     private int whiteBalanceRed;
     private int whiteBalanceGreen;
     private int whiteBalanceBlue;
 
     //2、曝光与增益
+    public static final int EXPOSURE_MODE_AUTO = 1;
     public static final int EXPOSURE_MODE_MANUAL = 2;
-    private int exposureMode;    //曝光模式
+    private int exposureMode = EXPOSURE_MODE_AUTO;    //曝光模式
     private int exposureBright;   //曝光亮度
     private int exposureGain;    //曝光增益
 
@@ -37,15 +38,20 @@ public class ParametersBean {
     private int colorHue;    //色调
     private int colorSaturation;    //饱和度
     private int colorBrightness;    //亮度
+    private int colorSharpness;     //锐度
     private int colorContrast;    //对比度
     private int colorGamma;    //伽玛
 
     //4、聚焦模式与区域
-    public static final int FOCUS_MODE_MANUAL = 2;
-    private int focusMode;
+    public static final int FOCUS_MODE_AUTO = 1;     //自动聚焦
+    public static final int FOCUS_MODE_QUICK = 2;     //一键聚焦(todo：该配置项只是一次性的，不需要保存？)
+    public static final int FOCUS_MODE_MANUAL = 3;   //手动聚焦
+    private int focusMode = FOCUS_MODE_AUTO;
     private int focusPos;
     //区域
-    private int focusAreaSize;
+    public static final int FOCUS_AREA_SIZE_SMALL = 1;
+    public static final int FOCUS_AREA_SIZE_LARGE = 3;
+    private int focusAreaSize = FOCUS_AREA_SIZE_SMALL;       //1——小；2——中；3——大
     private int focusHorizontal;
     private int focusVertical;
 
@@ -93,6 +99,10 @@ public class ParametersBean {
         this.exposureMode = exposureMode;
     }
 
+    public boolean isAutoExposureMode(){
+        return EXPOSURE_MODE_AUTO == exposureMode;
+    }
+
     public int getExposureBright() {
         return exposureBright;
     }
@@ -133,6 +143,14 @@ public class ParametersBean {
         this.colorBrightness = colorBrightness;
     }
 
+    public int getColorSharpness() {
+        return colorSharpness;
+    }
+
+    public void setColorSharpness(int colorSharpness) {
+        this.colorSharpness = colorSharpness;
+    }
+
     public int getColorContrast() {
         return colorContrast;
     }
@@ -155,6 +173,18 @@ public class ParametersBean {
 
     public void setFocusMode(int focusMode) {
         this.focusMode = focusMode;
+    }
+
+    public boolean isAutoFocusMode(){
+        return FOCUS_MODE_AUTO == focusMode;
+    }
+
+    public boolean isManualFocusMode(){
+        return FOCUS_MODE_MANUAL == focusMode;
+    }
+
+    public boolean isQuickFocusMode(){
+        return FOCUS_MODE_QUICK == focusMode;
     }
 
     public int getFocusPos() {

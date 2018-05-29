@@ -20,7 +20,7 @@
 
     <TextView
         android:id="@+id/tv_file_name"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:layout_below="@id/iv_photo_item"/>

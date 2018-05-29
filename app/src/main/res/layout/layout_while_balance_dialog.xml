@@ -12,7 +12,7 @@
         android:layout_height="30dp"
         android:layout_marginBottom="10dp"
         android:gravity="center"
-        android:text="白平衡"
+        android:text="@string/white_balance"
         android:textColor="@android:color/white"
         android:background="@drawable/tv_camera_params_title_bg"/>
     <LinearLayout
@@ -38,7 +38,7 @@
         android:id="@+id/sb_red"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/white_balance_rgb_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -62,7 +62,7 @@
         android:id="@+id/sb_green"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/white_balance_rgb_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -86,26 +86,26 @@
         android:id="@+id/sb_blue"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/white_balance_rgb_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
-        <Button
+        android:layout_marginBottom="10dp"
+        android:gravity="center">
+        <!--<Button
             android:id="@+id/bt_save_params"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:text="应用"/>
+            android:text="应用"/>-->
         <Button
             android:id="@+id/bt_recovery_to_default"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
-            android:text="默认"/>
+            android:text="@string/bt_recovery_to_default"/>
     </LinearLayout>
 </LinearLayout>

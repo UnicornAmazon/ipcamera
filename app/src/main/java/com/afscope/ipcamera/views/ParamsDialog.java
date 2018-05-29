@@ -101,6 +101,11 @@ public class ParamsDialog extends Dialog {
         return this;
     }
 
+    public void setEnabled(boolean enable){
+        Log.i(TAG, "setEnabled: ");
+        dialogBinding.setEnabled(enable);
+    }
+
     public void refreshParams(ParametersBean bean){
         dialogBinding.refreshParams(bean);
     }

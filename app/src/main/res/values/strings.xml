@@ -3,7 +3,6 @@
     <string name="authorities">com.afscope.authorities.fileprovider</string>
 
     <!-- 摄像头参数 -->
-    <string name="sb_max_value_common">10</string>
     <string name="bt_save_settings">应用</string>
     <string name="bt_recovery_to_default">默认</string>
 
@@ -11,7 +10,7 @@
 
     <string name="exposure_and_gain">曝光与增益</string>
     <string name="exposure_auto">自动曝光</string>
-    <string name="exposure_target">曝光目标</string>
+    <string name="exposure_target">曝光目标亮度</string>
     <string name="exposure_time">曝光时间</string>
     <string name="gain">增益</string>
 
@@ -19,6 +18,7 @@
     <string name="color_hue">色调</string>
     <string name="color_saturation">饱和度</string>
     <string name="color_brightness">亮度</string>
+    <string name="color_sharpness">锐度</string>
     <string name="color_contrast">对比度</string>
     <string name="color_gamma">伽马</string>
 
@@ -33,7 +33,6 @@
 
     <string-array name="focus_area_size_array">
         <item>小</item>
-        <item>中</item>
         <item>大</item>
     </string-array>
 </resources>

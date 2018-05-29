@@ -15,7 +15,7 @@
         android:text="@string/color_settings"
         android:textColor="@android:color/white"
         android:background="@drawable/tv_camera_params_title_bg"/>
-    <LinearLayout
+    <!--<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
@@ -86,7 +86,31 @@
         android:id="@+id/sb_brightness"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="10"/>-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="left"
+            android:text="@string/color_sharpness"/>
+        <TextView
+            android:id="@+id/tv_sharpness_value"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right"
+            android:text="0"/>
+    </LinearLayout>
+    <SeekBar
+        android:id="@+id/sb_sharpness"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="@integer/color_sharpness_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -110,7 +134,7 @@
         android:id="@+id/sb_contrast"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/color_contrast_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -134,24 +158,24 @@
         android:id="@+id/sb_gamma"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="10"/>
+        android:max="@integer/color_gamma_max_value"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp">
-        <Button
+        android:layout_marginBottom="10dp"
+        android:gravity="center">
+        <!--<Button
             android:id="@+id/bt_save_params"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:text="@string/bt_save_settings"/>
+            android:text="应用"/>-->
         <Button
             android:id="@+id/bt_recovery_to_default"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
             android:text="@string/bt_recovery_to_default"/>
