@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.widget.GridView;
@@ -44,9 +45,11 @@ public class ExplorerActivity extends BaseActivity {
             Log.e(TAG, "initView: media files dir not exists, and cannot be created");
             return;
         }
+        File[] a = mediaFilesDir.listFiles();
+        Log.i(TAG, "initView: "+a.length);
         mAppPhotosAdapter = new AppPhotosAdapter(
                 this,
-                Arrays.asList(mediaFilesDir.listFiles()),
+                Arrays.asList(a),
                 R.layout.layout_photo_list_item);
         gv_photo_explorer.setAdapter(mAppPhotosAdapter);
     }

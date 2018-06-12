@@ -117,6 +117,20 @@ public class ExposureDialogBinding extends ParamsDialogBinding implements SeekBa
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        int progress = seekBar.getProgress();
+        Log.i(TAG, "onStopTrackingTouch: progress = " + progress);
+        bean.setExposureMode(ParametersBean.EXPOSURE_MODE_MANUAL);
+        switch (seekBar.getId()){
+            case R.id.sb_exposure_target:
+                //曝光目标亮度
+                bean.setExposureBright(progress);
+                break;
+            case R.id.sb_gain:
+                //增益
+                bean.setExposureGain(progress);
+                break;
+        }
+//        wsController.sendCommand(CmdAndParamsCodec.getWhiteBalanceParamsCmd(bean));
+        sendCommand(CmdAndParamsCodec.getExposureParamsCmd(bean));
     }
 }

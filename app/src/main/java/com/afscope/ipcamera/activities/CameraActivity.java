@@ -6,8 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Chronometer;
+import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Switch;
@@ -34,8 +35,13 @@ import com.afscope.ipcamera.views.ParamsBarLayout;
 import com.afscope.ipcamera.views.ParamsDialog;
 import com.afscope.ipcamera.wscontroller.CmdAndParamsCodec;
 import com.afscope.ipcamera.wscontroller.WsController;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +56,7 @@ import butterknife.OnClick;
  * 4、读取摄像头参数
  */
 public class CameraActivity extends BaseActivity implements PlayFragment.OnStateChangedListener,
-        WsController.Listener {
+        WsController.Listener, CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "CameraActivity";
 
     private static final int REQUEST_CODE_REQUEST_STORAGE_PERMISSION = 335;
@@ -84,6 +90,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @Override
     protected void initView() {
         Log.i(TAG, "initView: ");
+        switch_capture_or_record.setOnCheckedChangeListener(this);
         render_holder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,10 +168,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             takePhoto();
         }
     }
-
-    @OnCheckedChanged(R.id.switch_capture_or_record)
-    void switchMode(boolean isChecked){
-        Log.i(TAG, "switchMode: isChecked ? " + isChecked);
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
         if (!isChecked){
             //切换到拍照 -- 可能在视频转录过程中切换
             chronometer_record_timer.stop();
@@ -178,6 +183,22 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             }
         }
     }
+//    @OnCheckedChanged(R.id.switch_capture_or_record)
+//    void switchMode(boolean isChecked){
+//        Log.i(TAG, "switchMode: isChecked ? " + isChecked);
+//        if (!isChecked){
+//            //切换到拍照 -- 可能在视频转录过程中切换
+//            chronometer_record_timer.stop();
+//            chronometer_record_timer.setVisibility(View.GONE);
+//            if (playFragment.isRecording()){
+//                try {
+//                    playFragment.startOrStopRecord();
+//                } catch (IllegalAccessException e) {
+//                    Log.e(TAG, "switchMode: error: " + e);
+//                }
+//            }
+//        }
+//    }
 
     private void takePhoto(){
         Log.i(TAG, "takePhoto: ");
@@ -193,14 +214,30 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                     if (result.result){
                         Log.i(TAG, "takePhoto, onResult: success");
                         //保存图像
-                        final Bitmap bitmap = CmdAndParamsCodec.decodeBase64StrToBitmap(result.msg);
-                        if (bitmap != null){
+                        final byte[] bytes = CmdAndParamsCodec.decodeBase64StrToBytes(result.msg);
+//                        Flowable.create(new FlowableOnSubscribe<byte[]>() {
+//                            @Override
+//                            public void subscribe(FlowableEmitter<byte[]> e) throws Exception {
+//                                e.onNext(bytes);
+//                                saveImage(bytes);
+//                            }
+//                        }, BackpressureStrategy.BUFFER)
+//                                .subscribeOn(Schedulers.io())
+//                                .observeOn(AndroidSchedulers.mainThread())
+//                                .subscribe(new Consumer<byte[]>() {
+//                                    @Override
+//                                    public void accept(byte[] bytes) throws Exception {
+//                                        Glide.with(CameraActivity.this).load(bytes).into(iv_explore);
+//                                    }
+//                                });
+                        if (bytes != null){
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    iv_explore.setImageBitmap(bitmap);
+                                    Glide.with(CameraActivity.this).load(bytes).into(iv_explore);
                                 }
                             });
+                            saveImage(bytes);
                         } else {
                             Log.e(TAG, "takePhoto, onResult: decode bitmap failed");
                             Toast.toast("解析图片失败！");
@@ -216,7 +253,25 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Toast.toast("未连接到相机！");
         }
     }
-
+    public  void saveImage(byte[] bmp) {
+        File appDir = new File(new File(Environment.getExternalStorageDirectory(),"afscope"), "media");
+        if (!appDir.exists()) {
+            appDir.mkdir();
+        }
+        String fileName = System.currentTimeMillis() + ".jpg";
+        File file = new File(appDir, fileName);
+        try {
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bmp);
+//            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     private void startOrStopRecord(){
         if (!Utils.isWifiConnected(this)){
             Log.e(TAG, "startOrStopRecord: wifi is not connected");

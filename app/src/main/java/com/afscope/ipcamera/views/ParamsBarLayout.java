@@ -59,7 +59,7 @@ public class ParamsBarLayout extends LinearLayout {
 
     private void hide(){
         isHidden = true;
-        animate().translationY(0)
+        animate().translationY(-getHeight())
                 .setDuration(400);
     }
 

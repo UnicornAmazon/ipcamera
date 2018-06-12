@@ -134,5 +134,6 @@ public class ColorDialogBinding extends ParamsDialogBinding implements SeekBar.O
                 break;
         }
 //        wsController.sendCommand(CmdAndParamsCodec.getColorParamsCmd(bean));
+        sendCommand(CmdAndParamsCodec.getColorParamsCmd(bean));
     }
 }

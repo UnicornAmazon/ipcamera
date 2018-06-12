@@ -60,7 +60,7 @@ public class ParametersBean {
     }
 
     public boolean isWhiteBalanceAutoMode(){
-        return whiteBalanceMode == WHITE_BALANCE_MODE_AUTO;
+        return whiteBalanceMode == WHITE_BALANCE_MODE_MANUAL;
     }
 
     public int getWhiteBalanceRed(){

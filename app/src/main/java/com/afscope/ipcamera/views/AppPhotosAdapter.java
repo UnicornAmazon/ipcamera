@@ -10,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afscope.ipcamera.R;
 import com.bumptech.glide.Glide;
@@ -25,12 +26,12 @@ public class AppPhotosAdapter extends CommonAdapter<File> implements AdapterView
     private static final String TAG = "AppPhotosAdapter";
 
     private int itemWidth;
-
+private Context mContext;
     private HashMap<Integer, Boolean> isSelected ;
 
     public AppPhotosAdapter(Context context, List<File> datas, int layoutId){
         super(context, datas, layoutId);
-
+        mContext=context;
         //获取屏幕宽度
         Resources resources = context.getResources();
         DisplayMetrics dm = resources.getDisplayMetrics();
@@ -91,7 +92,7 @@ public class AppPhotosAdapter extends CommonAdapter<File> implements AdapterView
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position,
                             long id) {
-        ViewHolder holder = (ViewHolder) view.getTag();
+                ViewHolder holder = (ViewHolder) view.getTag();
 
         boolean flag = isSelected.get(position);
         Log.d(TAG, "onItemClick: position:"+position+", flag:"+flag);

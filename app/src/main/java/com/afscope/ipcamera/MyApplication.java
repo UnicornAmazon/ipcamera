@@ -1,6 +1,7 @@
 package com.afscope.ipcamera;
 
 import android.app.Application;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.utils.Log;
@@ -22,9 +23,19 @@ public class MyApplication extends Application {
         android.util.Log.i(TAG, "onCreate: ");
         INSTANCE = this;
         Toast.init();
+//        initDateBase();
         Log.init(true);
     }
 
+//    private void initDateBase() {
+//        DaoMaster.DevOpenHelper helper=new DaoMaster.DevOpenHelper(this,"sssDb",null);
+//        SQLiteDatabase writableDatabase = helper.getWritableDatabase();
+//        DaoMaster dm=new DaoMaster(writableDatabase);
+//        mDaoSession = dm.newSession();
+//    }
+//    public DaoSession getDaoSession() {
+//        return mDaoSession;
+//    }
     public static final MyApplication getInstance(){
         return INSTANCE;
     }

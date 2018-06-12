@@ -122,8 +122,9 @@ public class WsController {
         cmdHandler.removeCallbacksAndMessages(null);
         cmdThread.quitSafely();
         if (mOkHttpClient != null){
-            mOkHttpClient.dispatcher().cancelAll();
-            mOkHttpClient.dispatcher().executorService().shutdown();
+
+//            mOkHttpClient.dispatcher().cancelAll();
+//            mOkHttpClient.dispatcher().executorService().shutdown();
         }
     }
 

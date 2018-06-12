@@ -143,11 +143,11 @@ public class CmdAndParamsCodec {
             param = Integer.toString(ParametersBean.EXPOSURE_MODE_AUTO);
         } else {
             param = String.format(SUB_CMD_PARAMETER_EXPOSURE_AND_GAIN_MANUAL_MODE,
-                    bean.getColorBrightness(),
+                    bean.getExposureBright(),
                     bean.getExposureGain());
         }
 
-        return String.format(CMD_PARAMETER_WHITE_BALANCE, param);
+        return String.format(CMD_PARAMETER_EXPOSURE_AND_GAIN, param);
     }
 
     public static final String getColorParamsCmd(ParametersBean bean){
@@ -226,11 +226,10 @@ public class CmdAndParamsCodec {
         return true;
     }
 
-    public static final @Nullable Bitmap decodeBase64StrToBitmap(String base64){
+    public static final @Nullable byte[] decodeBase64StrToBytes(String base64){
         Log.v(TAG, "decodeBase64StrToBitmap: base64 str: "+base64);
         if (TextUtils.isEmpty(base64)) return null;
-        byte[] bytes = Base64.decode(base64, Base64.NO_WRAP);
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        return Base64.decode(base64, Base64.NO_WRAP);
     }
 
     /**
