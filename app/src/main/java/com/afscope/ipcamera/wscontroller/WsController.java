@@ -10,6 +10,8 @@ import android.util.MonthDisplayHelper;
 import com.afscope.ipcamera.common.Callback;
 import com.afscope.ipcamera.common.Constants;
 
+import java.io.EOFException;
+import java.io.IOException;
 import java.util.IllegalFormatCodePointException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -34,18 +36,17 @@ import static com.afscope.ipcamera.wscontroller.WsController.Status.STATUS_LOGIN
 
 /**
  * Created by Administrator on 2018/5/15 0015.
- *
+ * <p>
  * websocket 测试地址：ws://echo.websocket.org
- *
+ * <p>
  * 开发板websocket 地址：ws://192.168.0.225:1234
- *
  */
 public class WsController {
     private static final String TAG = "WsController";
 
     private static final int NORMAL_CLOSURE_CODE = 1000;
 
-    private static final int DEFAULT_SEND_CMD_TIMEOUT = 5*1000;
+    private static final int DEFAULT_SEND_CMD_TIMEOUT = 5 * 1000;
 
     private OkHttpClient mOkHttpClient;
     private Request mRequest;
@@ -61,13 +62,15 @@ public class WsController {
 
     private String cmdResponse;
 
-    private WsController(){
+    private WsController() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         mOkHttpClient = new OkHttpClient.Builder()
                 .addInterceptor(logging)
-//                .connectTimeout(10, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(15, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
                 .pingInterval(10, TimeUnit.SECONDS)
                 .retryOnConnectionFailure(true)
                 .build();
@@ -81,7 +84,7 @@ public class WsController {
         cmdResponseCondition = cmdLock.newCondition();
     }
 
-    public final static WsController getInstance(){
+    public final static WsController getInstance() {
         return InstanceHolder.INSTANCE;
     }
 
@@ -89,11 +92,11 @@ public class WsController {
         WsController INSTANCE = new WsController();
     }
 
-    public void setListener(@NonNull Listener listener){
+    public void setListener(@NonNull Listener listener) {
         mStatusListener = listener;
     }
 
-    public void connect(String url){
+    public void connect(String url) {
         Log.i(TAG, "connect: url: " + url);
         mStatus = STATUS_CONNECTING;
         mRequest = new Request.Builder()
@@ -101,58 +104,55 @@ public class WsController {
                 .url(url)
                 .addHeader("Origin", "")
                 .build();
-        if (mWebSocket != null){
+        if (mWebSocket != null) {
             Log.w(TAG, "connect when current mWebSocket is not null");
             mWebSocket.close(NORMAL_CLOSURE_CODE, null);
         }
         mWebSocket = mOkHttpClient.newWebSocket(mRequest, mWsListener);
     }
 
-    public void disconnect(){
+    public void disconnect() {
         Log.i(TAG, "disconnect: ");
         mStatus = STATUS_DISCONNECTED;
-        if (mWebSocket != null){
+        if (mWebSocket != null) {
             mWebSocket.close(NORMAL_CLOSURE_CODE, null);
         }
     }
 
-    public void release(){
+    public void release() {
         Log.i(TAG, "release: ");
         mStatus = STATUS_DISCONNECTED;
         cmdHandler.removeCallbacksAndMessages(null);
-        cmdThread.quitSafely();
-        if (mOkHttpClient != null){
-
+        if (mOkHttpClient != null) {
 //            mOkHttpClient.dispatcher().cancelAll();
-//            mOkHttpClient.dispatcher().executorService().shutdown();
         }
     }
 
-    public Status getStatus(){
+    public Status getStatus() {
         return mStatus;
     }
 
-    public String getStatusStr(){
+    public String getStatusStr() {
         return Status.toString(mStatus);
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         return mStatus == STATUS_LOGGED_IN
                 || mStatus == STATUS_CONNECTED
                 || mStatus == STATUS_LOGIN_FAILED;
     }
 
-    public boolean isConnecting(){
+    public boolean isConnecting() {
         return mStatus == STATUS_CONNECTING;
     }
 
-    public boolean isLoggedIn(){
+    public boolean isLoggedIn() {
         return mStatus == STATUS_LOGGED_IN;
     }
 
     //仅发送指令，不管结果
-    public boolean sendCommand(@NonNull String cmd){
-        if (mWebSocket == null){
+    public boolean sendCommand(@NonNull String cmd) {
+        if (mWebSocket == null) {
             Log.e(TAG, "sendCommand: mWebSocket is null");
             return false;
         }
@@ -162,18 +162,17 @@ public class WsController {
         return true;
     }
 
-    public void sendCommand(@NonNull String cmd, Callback<Callback.Result> callback){
+    public void sendCommand(@NonNull String cmd, Callback<Callback.Result> callback) {
         sendCommand(cmd, DEFAULT_SEND_CMD_TIMEOUT, callback);
     }
 
     /**
-     *
      * @param cmd
      * @param timeout
-     * @param callback  如果结果正常，Result 中result 为true ，msg 为返回内容；如果失败，为false ，msg 为出错信息
+     * @param callback 如果结果正常，Result 中result 为true ，msg 为返回内容；如果失败，为false ，msg 为出错信息
      */
-    public void sendCommand(@NonNull final String cmd, final long timeout, final Callback<Callback.Result> callback){
-        if (mWebSocket == null){
+    public void sendCommand(@NonNull final String cmd, final long timeout, final Callback<Callback.Result> callback) {
+        if (mWebSocket == null) {
             callback.onResult(new Callback.Result(false, "mWebSocket is null, may not connected"));
             return;
         }
@@ -181,11 +180,12 @@ public class WsController {
             @Override
             public void run() {
                 try {
-                    Log.i(TAG, "sendCommand: cmd: "+cmd);
+                    Log.i(TAG, "sendCommand: cmd: " + cmd);
                     cmdLock.lock();
                     mWebSocket.send(cmd);
                     boolean result = cmdResponseCondition.await(timeout, TimeUnit.MILLISECONDS);
-                    if (!result){
+                    Log.i("xiang", "run: "+result);
+                    if (!result) {
                         callback.onResult(new Callback.Result(false, "send cmd time out"));
                     } else {
                         //检查返回字符串
@@ -217,25 +217,25 @@ public class WsController {
         public void onOpen(WebSocket webSocket, Response response) {
             Log.i(TAG, "onOpen: ");
             mStatus = STATUS_CONNECTED;
-            if (mStatusListener != null){
+            if (mStatusListener != null) {
                 mStatusListener.onStatusChanged(STATUS_CONNECTED);
             }
 
             //登录
             sendCommand(CmdAndParamsCodec.getLoginCmd(
                     Constants.DEFAULT_WEBSOCKET_LOGIN_USER, Constants.DEFAULT_WEBSOCKET_LOGIN_PWD),
-                    new Callback<Callback.Result>(){
+                    new Callback<Callback.Result>() {
                         @Override
                         public void onResult(Result result) {
                             Log.i(TAG, "onOpen: log in result: " + result);
-                            if (result.result){
+                            if (result.result) {
                                 mStatus = STATUS_LOGGED_IN;
-                                if (mStatusListener != null){
+                                if (mStatusListener != null) {
                                     mStatusListener.onStatusChanged(STATUS_LOGGED_IN);
                                 }
                             } else {
                                 mStatus = STATUS_LOGIN_FAILED;
-                                if (mStatusListener != null){
+                                if (mStatusListener != null) {
                                     mStatusListener.onStatusChanged(STATUS_LOGIN_FAILED);
                                 }
                             }
@@ -245,8 +245,8 @@ public class WsController {
 
         @Override
         public void onMessage(WebSocket webSocket, String text) {
-            if (text.length() < 64){
-                Log.i(TAG, "onMessage: text: "+text);
+            if (text.length() < 64) {
+                Log.i(TAG, "onMessage: text: " + text);
             } else {
                 Log.i(TAG, "onMessage: text is too long, may be photo base64 str ");
             }
@@ -266,6 +266,7 @@ public class WsController {
         @Override
         public void onClosing(WebSocket webSocket, int code, String reason) {
             Log.i(TAG, "onClosing: ");
+            webSocket.close(NORMAL_CLOSURE_CODE, null);
             mStatus = STATUS_CLOSING;
         }
 
@@ -273,18 +274,22 @@ public class WsController {
         public void onClosed(WebSocket webSocket, int code, String reason) {
             Log.i(TAG, "onClosed: ");
             mStatus = STATUS_CLOSED;
-            if (mStatusListener != null){
+            if (mStatusListener != null) {
                 mStatusListener.onStatusChanged(STATUS_CLOSED);
             }
         }
 
         @Override
-        public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-            Log.e(TAG, "onFailure: Response: "+response+", Throwable: ", t);
+        public void onFailure(WebSocket webSocket, Throwable t, Response response){
+            Log.e(TAG, "onFailure: Response: " + response + ", Throwable: ", t);
+            if (t instanceof IOException){
+                return;
+            }
             mStatus = STATUS_FAILURE;
-            if (mStatusListener != null){
+            if (mStatusListener != null) {
                 mStatusListener.onStatusChanged(STATUS_FAILURE);
             }
+
         }
 
     }
@@ -300,7 +305,7 @@ public class WsController {
         STATUS_LOGIN_FAILED;
 
         public final static String toString(Status status) {
-            switch (status){
+            switch (status) {
                 case STATUS_CONNECTING:
                     return "STATUS_CONNECTING";
                 case STATUS_CONNECTED:
@@ -325,6 +330,7 @@ public class WsController {
 
     public interface Listener {
         void onStatusChanged(Status status);
+
         void onMessage(String msg);
     }
 }

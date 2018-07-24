@@ -9,3 +9,5 @@
 *.apk
 *.class
 *.bat
+signing.properties
+IpcameraKeyStore.jks

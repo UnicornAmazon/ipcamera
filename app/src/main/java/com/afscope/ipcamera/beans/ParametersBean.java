@@ -8,9 +8,9 @@ import java.util.Map;
 
 /**
  * Created by Administrator on 2018/5/11 0011.
- *
+ * <p>
  * 相机参数
- *
+ * <p>
  * 1、白平衡
  * 2、曝光与增益(包含：光源频率)
  * 3、颜色调整
@@ -20,8 +20,16 @@ public class ParametersBean {
     private static final String TAG = "ParametersBean";
 
     //1、白平衡
+    // 自动白平衡命令格式：C&c&1&E
+    //    自动切手动命令格式: C&c&2&E
+    //    返回值：int rgb[3];
+    //手动白平衡命令格式：C&c&3&red=x&green=x&blue=x&E
     public static final int WHITE_BALANCE_MODE_AUTO = 1;
     public static final int WHITE_BALANCE_MODE_MANUAL = 2;
+
+    public static final int WHITE_BALANCE_MODE_MANUAL_WITH_PARAMETER = 3;
+
+
     private int whiteBalanceMode = WHITE_BALANCE_MODE_AUTO;
     private int whiteBalanceRed;
     private int whiteBalanceGreen;
@@ -49,29 +57,48 @@ public class ParametersBean {
     private int focusMode = FOCUS_MODE_AUTO;
     private int focusPos;
     //区域
-    public static final int FOCUS_AREA_SIZE_SMALL = 1;
-    public static final int FOCUS_AREA_SIZE_LARGE = 3;
+    public static final int FOCUS_AREA_SIZE_SMALL = 0;
+    public static final int FOCUS_AREA_SIZE_LARGE = 1;
+    //聚焦框
+    public static final int FOCUS_FRAME_CHECK = 1;
+    public static final int FOCUS_FRAME_UNCHECK = 0;
     private int focusAreaSize = FOCUS_AREA_SIZE_SMALL;       //1——小；2——中；3——大
     private int focusHorizontal;
     private int focusVertical;
+    private int focusFrame = FOCUS_FRAME_CHECK;
+    //相机设备是否有sd卡
+    public static final int UN_HAVA_SDCARD = 0;
+    private int sdCard = UN_HAVA_SDCARD;
 
-    public int getWhiteBalanceMode(){
+    public int getSdCard() {
+        return sdCard;
+    }
+
+    public void setSdCard(int sdCard) {
+        this.sdCard = sdCard;
+    }
+
+    public boolean isHavaSdCard() {
+        return getSdCard() != UN_HAVA_SDCARD;
+    }
+
+    public int getWhiteBalanceMode() {
         return whiteBalanceMode;
     }
 
-    public boolean isWhiteBalanceAutoMode(){
-        return whiteBalanceMode == WHITE_BALANCE_MODE_MANUAL;
+    public boolean isWhiteBalanceAutoMode() {
+        return whiteBalanceMode == WHITE_BALANCE_MODE_AUTO;
     }
 
-    public int getWhiteBalanceRed(){
+    public int getWhiteBalanceRed() {
         return whiteBalanceRed;
     }
 
-    public int getWhiteBalanceGreen(){
+    public int getWhiteBalanceGreen() {
         return whiteBalanceGreen;
     }
 
-    public int getWhiteBalanceBlue(){
+    public int getWhiteBalanceBlue() {
         return whiteBalanceBlue;
     }
 
@@ -99,7 +126,7 @@ public class ParametersBean {
         this.exposureMode = exposureMode;
     }
 
-    public boolean isAutoExposureMode(){
+    public boolean isAutoExposureMode() {
         return EXPOSURE_MODE_AUTO == exposureMode;
     }
 
@@ -175,15 +202,15 @@ public class ParametersBean {
         this.focusMode = focusMode;
     }
 
-    public boolean isAutoFocusMode(){
+    public boolean isAutoFocusMode() {
         return FOCUS_MODE_AUTO == focusMode;
     }
 
-    public boolean isManualFocusMode(){
+    public boolean isManualFocusMode() {
         return FOCUS_MODE_MANUAL == focusMode;
     }
 
-    public boolean isQuickFocusMode(){
+    public boolean isQuickFocusMode() {
         return FOCUS_MODE_QUICK == focusMode;
     }
 
@@ -219,7 +246,15 @@ public class ParametersBean {
         this.focusVertical = focusVertical;
     }
 
-    public String getWhiteBalanceParams(){
+    public int getFocusFrame() {
+        return focusFrame;
+    }
+
+    public void setFocusFrame(int focusFrame) {
+        this.focusFrame = focusFrame;
+    }
+
+    public String getWhiteBalanceParams() {
         StringBuilder builder = new StringBuilder()
                 .append("whiteBalanceMode: ").append(whiteBalanceMode)
                 .append("\n whiteBalanceRed: ").append(whiteBalanceRed)
@@ -228,7 +263,7 @@ public class ParametersBean {
         return builder.toString();
     }
 
-    public String getExposureParams(){
+    public String getExposureParams() {
         StringBuilder builder = new StringBuilder()
                 .append("exposureMode: ").append(exposureMode)
                 .append("\n exposureBright: ").append(exposureBright)
@@ -236,7 +271,7 @@ public class ParametersBean {
         return builder.toString();
     }
 
-    public String getColorParams(){
+    public String getColorParams() {
         StringBuilder builder = new StringBuilder()
                 .append("colorHue: ").append(colorHue)
                 .append("\n colorSaturation: ").append(colorSaturation)
@@ -246,13 +281,14 @@ public class ParametersBean {
         return builder.toString();
     }
 
-    public String getFocusParams(){
+    public String getFocusParams() {
         StringBuilder builder = new StringBuilder()
                 .append("focusMode: ").append(focusMode)
                 .append("\n focusPos: ").append(focusPos)
                 .append("\n focusAreaSize: ").append(focusAreaSize)
                 .append("\n focusHorizontal: ").append(focusHorizontal)
-                .append("\n focusVertical: ").append(focusVertical);
+                .append("\n focusVertical: ").append(focusVertical)
+                .append("\n focusFrame: ").append(focusFrame);
         return builder.toString();
     }
 
@@ -281,6 +317,7 @@ public class ParametersBean {
     }
 
     private static final HashMap<String, Field> keyFieldMap = new HashMap<>();
+
     static {
         try {
             Field whiteBalanceMode = ParametersBean.class.getDeclaredField("whiteBalanceMode");
@@ -297,20 +334,37 @@ public class ParametersBean {
             Field focusAreaSize = ParametersBean.class.getDeclaredField("focusAreaSize");
             Field focusHorizontal = ParametersBean.class.getDeclaredField("focusHorizontal");
             Field focusVertical = ParametersBean.class.getDeclaredField("focusVertical");
+            Field focusFrame = ParametersBean.class.getDeclaredField("focusFrame");
 
+            Field colorContrast = ParametersBean.class.getDeclaredField("colorContrast");
+            Field colorSharpness = ParametersBean.class.getDeclaredField("colorSharpness");
+            Field colorGamma = ParametersBean.class.getDeclaredField("colorGamma");
 
-//            keyFieldMap.put("", whiteBalanceMode);
+            Field sdCard = ParametersBean.class.getDeclaredField("sdCard");
+
+//白平衡
+            keyFieldMap.put("sdqh", whiteBalanceMode);
             keyFieldMap.put("red", whiteBalanceRed);
             keyFieldMap.put("green", whiteBalanceGreen);
             keyFieldMap.put("blue", whiteBalanceBlue);
-
+//曝光
             keyFieldMap.put("bright", exposureBright);
             keyFieldMap.put("zengyi", exposureGain);
-
+            keyFieldMap.put("bhdqh", exposureMode);
+//聚焦模式
             keyFieldMap.put("lever", focusHorizontal);
             keyFieldMap.put("verti", focusVertical);
+            keyFieldMap.put("facus", focusFrame);
+            keyFieldMap.put("pos", focusPos);
+            keyFieldMap.put("msqh", focusMode);
+            //图像调整
+            keyFieldMap.put("contrast", colorContrast);
+            keyFieldMap.put("sharpness", colorSharpness);
+            keyFieldMap.put("gamma", colorGamma);
+            //SD
+            keyFieldMap.put("sd", sdCard);
 
-        } catch (NoSuchFieldException e){
+        } catch (NoSuchFieldException e) {
             Log.e(TAG, "static initializer: error: " + e);
         }
     }
@@ -319,13 +373,13 @@ public class ParametersBean {
     public void setKeyValuePairs(Map<String, Integer> keyValuePairs) {
         try {
             Field field;
-            for (Map.Entry<String, Integer> entry : keyValuePairs.entrySet()){
+            for (Map.Entry<String, Integer> entry : keyValuePairs.entrySet()) {
                 field = keyFieldMap.get(entry.getKey());
-                if (field != null){
+                if (field != null) {
                     field.set(this, entry.getValue());
                 }
             }
-        } catch (IllegalAccessException e){
+        } catch (IllegalAccessException e) {
             Log.e(TAG, "setKeyValuePairs: error: " + e);
         }
 

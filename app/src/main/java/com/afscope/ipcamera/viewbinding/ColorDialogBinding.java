@@ -86,6 +86,9 @@ public class ColorDialogBinding extends ParamsDialogBinding implements SeekBar.O
             sb_sharpness.setProgress(color_sharpness_default_value);
             sb_contrast.setProgress(color_contrast_default_value);
             sb_gamma.setProgress(color_gamma_default_value);
+            bean.setColorGamma(color_gamma_default_value);
+            bean.setColorContrast(color_contrast_default_value);
+            bean.setColorSharpness(color_sharpness_default_value);
         }
         return CmdAndParamsCodec.getColorParamsCmd(bean);
     }

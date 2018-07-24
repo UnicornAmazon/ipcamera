@@ -57,6 +57,8 @@ private Context mContext;
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(itemWidth, itemWidth);
         iv_photo_item.setLayoutParams(params);
         TextView tv_file_name = holder.getView(R.id.tv_file_name);
+        ImageView iv_video_mark = holder.getView(R.id.iv_video_mark);
+        iv_video_mark.setVisibility(file.getName().endsWith(".jpg")?View.GONE:View.VISIBLE);
         params = (RelativeLayout.LayoutParams) tv_file_name.getLayoutParams();
         tv_file_name.setText(file.getName());
         if (file.exists()){

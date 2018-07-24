@@ -1,6 +1,6 @@
 package org.easydarwin.video;
 
-//import java.lang.annotation.Native;
+import java.lang.annotation.Native;
 
 /**
  * Created by John on 2017/1/10.
@@ -12,10 +12,9 @@ public class EasyMuxer2 {
         System.loadLibrary("proffmpeg");
         System.loadLibrary("VideoCodecer");
     }
-
     public static final int AVMEDIA_TYPE_VIDEO  = 0;
     public static final int AVMEDIA_TYPE_AUDIO  = 1;
-//    @Native
+    @Native
     private long ctx;
 
     public native int create(String path, int width, int height, byte []extra, int sample, int channel);

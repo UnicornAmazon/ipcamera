@@ -11,6 +11,7 @@ import com.afscope.ipcamera.R;
 import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.common.Callback;
 import com.afscope.ipcamera.utils.Toast;
+import com.afscope.ipcamera.wscontroller.CmdAndParamsCodec;
 import com.afscope.ipcamera.wscontroller.WsController;
 
 import butterknife.ButterKnife;

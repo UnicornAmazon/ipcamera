@@ -10,7 +10,11 @@ import android.util.Log;
 import android.util.MonthDisplayHelper;
 
 import com.afscope.ipcamera.beans.ParametersBean;
+import com.elvishew.xlog.LogItem;
 
+import org.easydarwin.util.C;
+
+import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.IllegalFormatCodePointException;
 import java.util.Map;
@@ -41,7 +45,9 @@ public class CmdAndParamsCodec {
      * 聚焦位置：pos
      */
     private static final String CMD_PARAMETER_FOCUS_MODE = "C&a&%s&E";
-    private static final String SUB_CMD_PARAMETER_FOCUS_MODE_MANUAL_MODE = "3&pos=%d";
+    //手动专用
+    public static final String CMD_PARAMETER_FOCUS_MANUAL_MODE = "C&a&3&E";
+    private static final String SUB_CMD_PARAMETER_FOCUS_MODE_MANUAL_MODE = "4&pos=%d";
 
     /**
      * 聚焦区域 -- 指令第二个字符为b
@@ -67,7 +73,9 @@ public class CmdAndParamsCodec {
      * RGB 色值(red , green , blue)
      */
     private static final String CMD_PARAMETER_WHITE_BALANCE = "C&c&%s&E";
-    private static final String SUB_CMD_PARAMETER_WHITE_BALANCE_MANUAL_MODE = "2&red=%d&green=%d&blue=%d";
+    private static final String SUB_CMD_PARAMETER_WHITE_BALANCE_MANUAL_MODE = "3&red=%d&green=%d&blue=%d";
+    //图像调整
+    private static final String CMD_PARAMETER_COLOR_MODE = "C&f&sharpness=%d&contrast=%d&gamma=%d&E";
 
     //3、曝光与增益(包含：光源频率)
     /**
@@ -80,8 +88,8 @@ public class CmdAndParamsCodec {
      * 亮度：bright
      * 增益：zengyi
      */
-    private static final String CMD_PARAMETER_EXPOSURE_AND_GAIN = "C&d&%s&E";
-    private static final String SUB_CMD_PARAMETER_EXPOSURE_AND_GAIN_MANUAL_MODE = "2&bright=%d&zengyi=%d";
+    private static final String CMD_PARAMETER_AUTO_EXPOSURE = "C&d&1&bright=%d&E";
+    private static final String CMD_PARAMETER_MANUAL_EXPOSURE = "C&d&2&zengyi=%d&E";
 
     //4、颜色调整
 
@@ -125,12 +133,17 @@ public class CmdAndParamsCodec {
 
     public static final String getWhiteBalanceParamsCmd(ParametersBean bean){
         String param;
-        if (ParametersBean.WHITE_BALANCE_MODE_MANUAL == bean.getWhiteBalanceMode()){
+        if (ParametersBean.WHITE_BALANCE_MODE_MANUAL_WITH_PARAMETER == bean.getWhiteBalanceMode()){
+            //手动调节白平衡参数
             param = String.format(SUB_CMD_PARAMETER_WHITE_BALANCE_MANUAL_MODE,
                     bean.getWhiteBalanceRed(),
                     bean.getWhiteBalanceGreen(),
                     bean.getWhiteBalanceBlue());
-        } else {
+        } else if(ParametersBean.WHITE_BALANCE_MODE_MANUAL == bean.getWhiteBalanceMode()){
+            //手动模式
+            param = Integer.toString(bean.getWhiteBalanceMode());
+        }else {
+            //自动模式
             param = Integer.toString(bean.getWhiteBalanceMode());
         }
 
@@ -140,18 +153,24 @@ public class CmdAndParamsCodec {
     public static final String getExposureParamsCmd(ParametersBean bean){
         String param;
         if (bean.isAutoExposureMode()){
-            param = Integer.toString(ParametersBean.EXPOSURE_MODE_AUTO);
+            param = String.format(CMD_PARAMETER_AUTO_EXPOSURE,
+                    bean.getExposureBright());
         } else {
-            param = String.format(SUB_CMD_PARAMETER_EXPOSURE_AND_GAIN_MANUAL_MODE,
-                    bean.getExposureBright(),
+            param = String.format(CMD_PARAMETER_MANUAL_EXPOSURE,
                     bean.getExposureGain());
         }
-
-        return String.format(CMD_PARAMETER_EXPOSURE_AND_GAIN, param);
+        Log.i(TAG, "getExposureParamsCmd: "+param);
+        return param;
     }
 
     public static final String getColorParamsCmd(ParametersBean bean){
-        return null;
+        String param;
+            param = String.format(CMD_PARAMETER_COLOR_MODE,
+                    bean.getColorSharpness(),
+                    bean.getColorContrast(),
+                    bean.getColorGamma());
+        Log.i(TAG, "getColorParamsCmd: "+param);
+        return param;
     }
 
     public static final String getFocusModeParamsCmd(ParametersBean bean){
@@ -161,6 +180,7 @@ public class CmdAndParamsCodec {
         } else if (bean.isQuickFocusMode()){
             param = Integer.toString(ParametersBean.FOCUS_MODE_QUICK);
         } else {
+            //手动聚焦
             param = String.format(SUB_CMD_PARAMETER_FOCUS_MODE_MANUAL_MODE,
                     bean.getFocusPos());
         }
@@ -173,7 +193,7 @@ public class CmdAndParamsCodec {
                 bean.getFocusAreaSize(),
                 bean.getFocusHorizontal(),
                 bean.getFocusVertical(),
-                0);
+                bean.getFocusFrame());
     }
 
     public static final String getRequestParamsCmd(){
@@ -222,7 +242,7 @@ public class CmdAndParamsCodec {
     public static final boolean isValidParametersStr(String params){
         if (TextUtils.isEmpty(params)) return false;
 //        if (!params.matches("([a-zA-Z\\-]+=[0-9]+)(&([a-zA-Z\\-]+=[0-9]+))?&")) return false;
-        if (!params.matches("([a-zA-Z\\-]+=[0-9]+&)+")) return false;
+//        if (!params.matches("([a-zA-Z\\-]+=[0-9]+&)+")) return false;
         return true;
     }
 
@@ -254,6 +274,10 @@ public class CmdAndParamsCodec {
                 return false;
             }
         } else if (CmdAndParamsCodec.isApplyParameterCmd(cmd)){
+            if (cmd.equals("C&c&2&E")||cmd.equals("C&a&3&E")){
+                //白平衡和聚焦自动有返回参数直接 return true
+                return true;
+            }
             if (TextUtils.isEmpty(response) || !response.contains("ok")){
                 return false;
             }

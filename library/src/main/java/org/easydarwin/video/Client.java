@@ -204,10 +204,10 @@ public class Client implements Closeable {
             throw new IllegalStateException("context is 0!");
         }
 
-        return openStream(mCtx, _channel, _url, _type, _mediaType, _user, _pwd, 1000, 0);
+        return openStream(mCtx, _channel, _url, _type, _mediaType, _user, _pwd, 1000, 0, 0);
     }
 
-    private native int openStream(long context, int channel, String url, int type, int mediaType, String user, String pwd, int reconn, int outRtpPacket);
+    private native int openStream(long context, int channel, String url, int type, int mediaType, String user, String pwd, int reconn, int outRtpPacket, int rtspOption);
 
 //    private native int startRecord(int context, String path);
 //

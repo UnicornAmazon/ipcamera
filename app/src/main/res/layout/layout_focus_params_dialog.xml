@@ -3,154 +3,193 @@
     android:id="@+id/ll_white_balance_params"
     android:layout_width="200dp"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
     android:layout_marginLeft="10dp"
-    android:orientation="vertical"
-    android:background="@drawable/layout_camera_params_bg">
+    android:layout_marginTop="10dp"
+    android:background="@drawable/layout_camera_params_bg"
+    android:orientation="vertical">
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_marginBottom="10dp"
+        android:background="@drawable/tv_camera_params_title_bg"
         android:gravity="center"
         android:text="@string/focus_mode_and_area"
-        android:textColor="@android:color/white"
-        android:background="@drawable/tv_camera_params_title_bg"/>
+        android:textColor="@android:color/white" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="@string/focus_position"/>
+            android:text="@string/focus_position" />
+
         <TextView
             android:id="@+id/tv_position_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="right"
-            android:text="0"/>
+            android:text="0" />
     </LinearLayout>
+
     <SeekBar
         android:id="@+id/sb_position"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:max="@integer/focus_pos_max_value"
-        android:progress="@integer/focus_pos_default_value"/>
+        android:progress="@integer/focus_pos_default_value" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
+        android:gravity="center"
         android:layout_marginRight="10dp">
+
         <Button
             android:id="@+id/bt_focus_mode_auto"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/focus_mode_selector"
             android:layout_weight="1"
-            android:text="@string/focus_mode_auto"/>
+            android:text="@string/focus_mode_auto" />
+
         <Button
             android:id="@+id/bt_focus_mode_quick"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:background="@drawable/focus_mode_selector"
+            android:layout_marginRight="10dp"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="@string/focus_mode_quick"/>
+            android:text="@string/focus_mode_quick" />
+
         <Button
             android:id="@+id/bt_focus_mode_manual"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_weight="1"
-            android:text="@string/focus_area_manual"/>
+            android:background="@drawable/focus_mode_selector"
+            android:text="@string/focus_area_manual" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
+
         <TextView
-            android:layout_width="0dp"
+            android:layout_width="35dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:gravity="left"
-            android:text="@string/focus_area_size"/>
+            android:text="@string/focus_area_size" />
+
         <Spinner
             android:id="@+id/spinner_area_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:entries="@array/focus_area_size_array"/>
+            android:entries="@array/focus_area_size_array" />
+        <CheckBox
+            android:id="@+id/cb_Focus_frame"
+            android:layout_width="wrap_content"
+            android:checked="true"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:text="对焦框"
+            android:layout_height="wrap_content" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="@string/focus_area_horizontal"/>
+            android:text="@string/focus_area_horizontal" />
+
         <TextView
             android:id="@+id/tv_horizontal_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="right"
-            android:text="0"/>
+            android:text="0" />
     </LinearLayout>
+
     <SeekBar
         android:id="@+id/sb_horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="@integer/focus_horizontal_max_value_at_small_size"/>
+        android:max="@integer/focus_horizontal_max_value_at_small_size" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="10dp"
         android:paddingRight="10dp">
+
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="left"
-            android:text="@string/focus_area_vertical"/>
+            android:text="@string/focus_area_vertical" />
+
         <TextView
             android:id="@+id/tv_vertical_value"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="right"
-            android:text="0"/>
+            android:text="0" />
     </LinearLayout>
+
     <SeekBar
         android:id="@+id/sb_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="@integer/focus_vertical_max_value_at_small_size"/>
+        android:max="@integer/focus_vertical_max_value_at_small_size" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
         android:gravity="center">
+
         <Button
             android:id="@+id/bt_save_params"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:text="@string/bt_save_settings"/>
+            android:layout_weight="1"
+            android:text="@string/bt_save_settings" />
+
         <Button
             android:id="@+id/bt_recovery_to_default"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
-            android:text="@string/bt_recovery_to_default"/>
+            android:layout_weight="1"
+            android:text="@string/bt_recovery_to_default" />
     </LinearLayout>
 </LinearLayout>

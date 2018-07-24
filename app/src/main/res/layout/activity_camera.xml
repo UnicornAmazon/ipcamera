@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:keepScreenOn="true"
     tools:context="com.afscope.ipcamera.activities.CameraActivity">
-
+    <FrameLayout
+        android:id="@+id/render_holder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_above="@id/rl_footer" />
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        />
     <RelativeLayout
         android:id="@+id/rl_footer"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
         android:background="@color/colorPrimary">
         <ImageView
             android:id="@+id/iv_explore"
@@ -27,7 +39,7 @@
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:src="@drawable/ic_take_photo"
-            android:scaleType="centerInside"/>
+            android:scaleType="fitXY"/>
 
         <Chronometer
             android:id="@+id/chronometer_record_timer"
@@ -48,20 +60,14 @@
             android:layout_alignParentEnd="true"/>
     </RelativeLayout>
 
-    <FrameLayout
-        android:id="@+id/render_holder"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:layout_above="@id/rl_footer" />
+
 
     <com.afscope.ipcamera.views.ParamsBarLayout
         android:id="@+id/ll_header"
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:layout_marginTop="-40dp"
-        android:layout_alignParentTop="true"
+        android:layout_gravity="top"
         android:paddingStart="50dp"
         android:paddingEnd="50dp"
         android:clickable="true"
@@ -96,4 +102,4 @@
             android:scaleType="centerInside"
             android:src="@drawable/ic_focus"/>
     </com.afscope.ipcamera.views.ParamsBarLayout>
-</RelativeLayout>
+</FrameLayout>

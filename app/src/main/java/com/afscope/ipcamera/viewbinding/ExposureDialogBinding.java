@@ -63,6 +63,11 @@ public class ExposureDialogBinding extends ParamsDialogBinding implements SeekBa
     @Override
     public void refreshParams(ParametersBean bean) {
         Log.i(TAG, "refreshParams: " + bean.getExposureParams());
+        if (bean.isAutoExposureMode()){
+            sb_gain.setEnabled(false);
+        }else {
+            sb_exposure_target.setEnabled(false);
+        }
         switch_exposure_mode.setChecked(bean.isAutoExposureMode());
         sb_exposure_target.setProgress(bean.getExposureBright());
         sb_gain.setProgress(bean.getExposureGain());
@@ -101,15 +106,20 @@ public class ExposureDialogBinding extends ParamsDialogBinding implements SeekBa
     void switchExposureMode(boolean isChecked){
         Log.i(TAG, "switchExposureMode: isChecked ? " + isChecked);
         if (isChecked){
-            //自动曝光模式
+            //自动曝光模式 增益不可以改,亮度可以改
             bean.setExposureMode(ParametersBean.EXPOSURE_MODE_AUTO);
+            sb_gain.setEnabled(false);
+            sb_exposure_target.setEnabled(true);
 //            bean.setExposureBright(defaultBrightness);
 //            sb_exposure_target.setProgress(defaultBrightness);
         } else {
+            sb_exposure_target.setEnabled(false);
+            sb_gain.setEnabled(true);
             bean.setExposureMode(ParametersBean.EXPOSURE_MODE_MANUAL);
 //            bean.setExposureGain(defaultGain);
 //            sb_gain.setProgress(defaultGain);
         }
+        sendCommand(CmdAndParamsCodec.getExposureParamsCmd(bean));
     }
 
     @Override
@@ -119,7 +129,6 @@ public class ExposureDialogBinding extends ParamsDialogBinding implements SeekBa
     public void onStopTrackingTouch(SeekBar seekBar) {
         int progress = seekBar.getProgress();
         Log.i(TAG, "onStopTrackingTouch: progress = " + progress);
-        bean.setExposureMode(ParametersBean.EXPOSURE_MODE_MANUAL);
         switch (seekBar.getId()){
             case R.id.sb_exposure_target:
                 //曝光目标亮度

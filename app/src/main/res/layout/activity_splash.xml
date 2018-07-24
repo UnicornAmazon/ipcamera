@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/id_start_page_bg_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/afscope_splash"
+        android:visibility="visible" />
+
+    <!--<TextView-->
+        <!--android:id="@+id/id_jump_txt"-->
+        <!--style="@style/DefaultTvStyle"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_margin="@dimen/px60"-->
+        <!--android:background="@drawable/splash_jump_bg"-->
+        <!--android:paddingBottom="@dimen/px15"-->
+        <!--android:paddingLeft="@dimen/px30"-->
+        <!--android:paddingRight="@dimen/px30"-->
+        <!--android:paddingTop="@dimen/px15"-->
+        <!--android:textColor="@color/white"-->
+        <!--android:textSize="@dimen/px45"-->
+        <!--android:visibility="gone" />-->
+
+</RelativeLayout>

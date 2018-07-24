@@ -2,12 +2,22 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
-
+<RelativeLayout
+    android:id="@+id/fl_photo"
+    android:layout_width="100dp"
+    android:layout_height="100dp">
     <ImageView
         android:id="@+id/iv_photo_item"
         android:layout_width="100dp"
         android:layout_height="100dp" />
-
+    <ImageView
+        android:id="@+id/iv_video_mark"
+        android:layout_width="25dp"
+        android:layout_centerInParent="true"
+        android:layout_height="25dp"
+        android:visibility="gone"
+        android:src="@mipmap/video_play"/>
+</RelativeLayout>
     <CheckBox
         android:id="@+id/cb_select_photo"
         android:layout_width="wrap_content"
@@ -23,5 +33,5 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:layout_below="@id/iv_photo_item"/>
+        android:layout_below="@id/fl_photo"/>
 </RelativeLayout>
