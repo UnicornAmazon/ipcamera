@@ -52,7 +52,6 @@ private Context mContext;
 
     @Override
     public void convert(ViewHolder holder, File file, int position) {
-//        Log.d(TAG, "convert: file:"+file.getAbsolutePath());
         ImageView iv_photo_item = holder.getView(R.id.iv_photo_item);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(itemWidth, itemWidth);
         iv_photo_item.setLayoutParams(params);

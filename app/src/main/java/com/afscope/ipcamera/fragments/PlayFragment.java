@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.preference.PreferenceManager;
 import android.support.annotation.IntRange;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewCompat;
@@ -37,6 +38,7 @@ import com.afscope.ipcamera.utils.Utils;
 
 import org.easydarwin.video.Client;
 import org.easydarwin.video.EasyPlayerClient;
+import org.easydarwin.video.VideoCodec;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -143,8 +145,8 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
                 } else if (resultCode == EasyPlayerClient.RESULT_UNSUPPORTED_VIDEO) {
                     new AlertDialog.Builder(getActivity()).setMessage("视频格式不支持").setTitle("SORRY").setPositiveButton(android.R.string.ok, null).show();
                 } else if (resultCode == EasyPlayerClient.RESULT_EVENT) {
-//                    Log.i(TAG, "onReceiveResult: ");
-//                    int errorcode = resultData.getInt("errorcode");
+                    Log.i(TAG, "onReceiveResult: ");
+                    int errorcode = resultData.getInt("errorcode");
 //                    if (errorcode != 0){
 //                        stopRending();
 //                    }
@@ -199,18 +201,14 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
         mSurfaceView.getBitmap(bitmap);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        byte[] bytes=baos.toByteArray();
-//        saveBitmapInFile(path, bitmap);
+        byte[] bytes = baos.toByteArray();
         return bytes;
     }
 
     private MediaScannerConnection mScanner;
 
-    public void saveBitmapInFile(final String path, Bitmap bitmap) {
-        FileOutputStream fos = null;
+    public void saveBitmapInFile(final String path) {
         try {
-            fos = new FileOutputStream(path);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             if (mScanner == null) {
                 MediaScannerConnection connection = new MediaScannerConnection(getActivity(),
                         new MediaScannerConnection.MediaScannerConnectionClient() {
@@ -228,18 +226,8 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
                 connection.connect();
                 mScanner = connection;
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         } catch (OutOfMemoryError error) {
             error.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -284,6 +272,7 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
     }
 
     private void startRending(SurfaceTexture surface) {
+        PreferenceManager.getDefaultSharedPreferences(getActivity()).edit().putBoolean("use-sw-codec", false).apply();
         if (mUrl == null) {
             Log.e(TAG, "startRending: mUrl is null");
             Toast.toast("错误：未设置视频源URL地址！");
@@ -304,7 +293,6 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
             Toast.toast("播放视频时出现异常！");
         }
     }
-
     private void stopRending() {
         if (mStreamRender != null) {
             notifyRenderStateChanged(RESULT_REND_STOPED);
@@ -328,8 +316,10 @@ public class PlayFragment extends Fragment implements TextureView.SurfaceTexture
                 throw new IllegalAccessException("cannot create media files dir for saving record file");
             }
             Log.i(TAG, "startOrStopRecord: start record, files dir: " + mediaFilesDir.getAbsolutePath());
-            mStreamRender.startRecord(new File(mediaFilesDir,
-                    dateFormat.format(new Date()) + ".mp4").getAbsolutePath());
+            String path = new File(mediaFilesDir,
+                    dateFormat.format(new Date()) + ".mp4").getAbsolutePath();
+            mStreamRender.startRecord(path);
+            saveBitmapInFile(path);
             return true;
         } else {
             Log.i(TAG, "startOrStopRecord: stop record ");

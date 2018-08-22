@@ -39,7 +39,7 @@
             android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:src="@drawable/ic_take_photo"
-            android:scaleType="fitXY"/>
+            android:scaleType="fitCenter"/>
 
         <Chronometer
             android:id="@+id/chronometer_record_timer"

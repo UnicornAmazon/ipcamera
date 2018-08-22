@@ -43,6 +43,13 @@ android {
     }
 
 }
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+    mavenCentral()
+    google()
+}
 greendao {
     //数据库的schema版本，也可以理解为数据库版本号
     schemaVersion 1

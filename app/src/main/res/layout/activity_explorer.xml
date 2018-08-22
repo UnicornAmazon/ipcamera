@@ -43,27 +43,6 @@
             android:visibility="gone"/>
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/rl_photo_explorer_ground"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:visibility="gone"
-        android:background="@color/colorPrimary">
-
-        <!--<TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="15dp"
-            android:background="@drawable/btn_white_frame_bg"
-            android:text="删 除"
-            android:textSize="16sp"
-            android:textColor="@android:color/white"/>-->
-
-    </RelativeLayout>
-
     <GridView
         android:id="@+id/gv_photo_explorer"
         android:layout_width="match_parent"

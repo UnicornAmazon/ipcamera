@@ -99,9 +99,6 @@ public class WhiteBalanceDialogBinding extends ParamsDialogBinding implements Se
         if (isChecked) {
             //自动白平衡
             bean.setWhiteBalanceMode(ParametersBean.WHITE_BALANCE_MODE_AUTO);
-            sb_red.setProgress(bean.getWhiteBalanceRed());
-            sb_green.setProgress(bean.getWhiteBalanceGreen());
-            sb_blue.setProgress(bean.getWhiteBalanceBlue());
             sb_red.setEnabled(false);
             sb_green.setEnabled(false);
             sb_blue.setEnabled(false);

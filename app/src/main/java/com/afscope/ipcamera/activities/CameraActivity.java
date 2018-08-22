@@ -129,6 +129,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         });
         initImage();
     }
+
     private void initImage() {
         File[] files = Utils.getMediaFilesDir().listFiles();
         if (files != null && files.length > 0)
@@ -166,7 +167,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         }
 
         //检查WebSocket 连接状态
-        if (!wsController.isConnected() ) {
+        if (!wsController.isConnected()) {
 //            wsController.connect("ws://echo.websocket.org");
             wsController.connect("ws://192.168.7.1:1234");
         }
@@ -187,6 +188,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             entry.getValue().onConfigurationChanged(newConfig);
         }
     }
+
     @OnClick(R.id.iv_capture_or_record)
     void takePhotoOrRecord() {
         WindowManager windowManager = getWindowManager();
@@ -228,10 +230,10 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Log.e(TAG, "takePhoto:  media files dir not exists, and cannot be created");
             return;
         }
-        if (!MyApplication.getInstance().getParametersBean().isHavaSdCard()){
+        if (!MyApplication.getInstance().getParametersBean().isHavaSdCard()) {
             //没有sd卡
             byte[] bytes = playFragment.takePicture();
-            if (bytes==null){
+            if (bytes == null) {
                 Toast.toast("未连接到相机！");
                 return;
             }
@@ -270,6 +272,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Toast.toast("未连接到相机！");
         }
     }
+
     public void saveImage(byte[] bmp) {
         File appDir = new File(new File(Environment.getExternalStorageDirectory(), "afscope"), "media");
         if (!appDir.exists()) {
@@ -277,7 +280,23 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         }
         String fileName = dateFormat.format(new Date()) + ".jpg";
         File file = new File(appDir, fileName);
-        playFragment.saveBitmapInFile(file.getPath(), BitmapFactory.decodeByteArray(bmp,0,bmp.length));
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(file.getPath());
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bmp, 0, bmp.length);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }finally {
+            if (fos!=null){
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        playFragment.saveBitmapInFile(file.getPath());
 //        try {
 //            FileOutputStream fos = new FileOutputStream(file);
 //            fos.write(bmp);
@@ -297,10 +316,11 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Toast.toast("请检查手机Wifi 连接！");
             return;
         }
-        iv_capture_or_record.setImageResource(playFragment.isRecording() ? R.mipmap.ic_action_record : R.mipmap.ic_action_record_checked);
+//        boolean connecting = wsController.isConnecting();
         try {
             Log.i(TAG, "startOrStopRecord: ");
-            playFragment.startOrStopRecord();
+            boolean recording = playFragment.startOrStopRecord();
+            iv_capture_or_record.setImageResource(recording ? R.mipmap.ic_action_record_checked : R.mipmap.ic_action_record);
         } catch (IllegalAccessException e) {
             Log.e(TAG, "startOrStopRecord: error: " + e);
         }
@@ -514,7 +534,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
 
     @Override
     public void onRenderStateChanged(int status) {
-        if (status==RESULT_REND_VIDEO_DISPLAYED){
+        if (status == RESULT_REND_VIDEO_DISPLAYED) {
             //视频显示出来后关闭加载画面
             progress_bar.setVisibility(View.GONE);
         }

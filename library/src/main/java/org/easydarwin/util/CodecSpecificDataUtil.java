@@ -15,6 +15,7 @@
  */
 package org.easydarwin.util;
 
+import android.media.MediaCodecInfo;
 import android.util.Pair;
 
 
@@ -243,6 +244,40 @@ public final class CodecSpecificDataUtil {
       }
     }
     return true;
+  }
+
+
+  /**
+   * Returns a color format that is supported by the codec and by this test code.  If no
+   * match is found, this throws a test failure -- the set of formats known to the test
+   * should be expanded for new platforms.
+   */
+  public static int selectColorFormat(MediaCodecInfo codecInfo, String mimeType) {
+    MediaCodecInfo.CodecCapabilities capabilities = codecInfo.getCapabilitiesForType(mimeType);
+    for (int i = 0; i < capabilities.colorFormats.length; i++) {
+      int colorFormat = capabilities.colorFormats[i];
+      if (isRecognizedFormat(colorFormat)) {
+        return colorFormat;
+      }
+    }
+    return 0;   // not reached
+  }
+  /**
+   * Returns true if this is a color format that this test code understands (i.e. we know how
+   * to read and generate frames in this format).
+   */
+  private static boolean isRecognizedFormat(int colorFormat) {
+    switch (colorFormat) {
+      // these are the formats we know how to handle for this test
+      case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar:
+      case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedPlanar:
+      case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420SemiPlanar:
+      case MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420PackedSemiPlanar:
+      case MediaCodecInfo.CodecCapabilities.COLOR_TI_FormatYUV420PackedSemiPlanar:
+        return true;
+      default:
+        return false;
+    }
   }
 
 }
