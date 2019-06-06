@@ -1,48 +1,37 @@
 package com.afscope.ipcamera.activities;
 
 import android.Manifest;
-import android.animation.ObjectAnimator;
-import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Process;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Chronometer;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 
 import com.afscope.ipcamera.MyApplication;
 import com.afscope.ipcamera.R;
 import com.afscope.ipcamera.beans.ParametersBean;
 import com.afscope.ipcamera.common.Callback;
-import com.afscope.ipcamera.fragments.PlayFragment;
+import com.afscope.ipcamera.fragments.OptoelecFragment;
 import com.afscope.ipcamera.utils.Toast;
 import com.afscope.ipcamera.utils.Utils;
 import com.afscope.ipcamera.viewbinding.ColorDialogBinding;
@@ -59,20 +48,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.BindView;
-import butterknife.OnCheckedChanged;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.reactivex.Maybe;
-import io.reactivex.MaybeEmitter;
-import io.reactivex.MaybeOnSubscribe;
 
-import static com.afscope.ipcamera.fragments.PlayFragment.RESULT_REND_VIDEO_DISPLAYED;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 /**
  * 1、检查wifi 连接
@@ -80,7 +65,7 @@ import static com.afscope.ipcamera.fragments.PlayFragment.RESULT_REND_VIDEO_DISP
  * 3、查找并连接IP 摄像头
  * 4、读取摄像头参数
  */
-public class CameraActivity extends BaseActivity implements PlayFragment.OnStateChangedListener,
+public class CameraActivity extends BaseActivity implements
         WsController.Listener, CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "CameraActivity";
 
@@ -95,7 +80,9 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     @BindView(R.id.switch_capture_or_record)
     Switch switch_capture_or_record;
     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
-    private PlayFragment playFragment;
+    @BindView(R.id.rl_footer)
+    RelativeLayout rlFooter;
+    private OptoelecFragment optoelecFragment;
     private WsController wsController;
 
     private HashMap<String, ParamsDialog> paramsDialogMap = new HashMap<>();
@@ -110,6 +97,7 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     ImageView iv_capture_or_record;
     @BindView(R.id.chronometer_record_timer)
     Chronometer chronometer_record_timer;
+    File file;
 
     @Override
     protected int getLayoutId() {
@@ -140,15 +128,13 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     protected void initData(Bundle savedInstanceState) {
         Log.i(TAG, "initData: ");
         if (savedInstanceState == null) {
-            playFragment = new PlayFragment();
-            getFragmentManager().beginTransaction().add(R.id.render_holder, playFragment).commit();
+            optoelecFragment = new OptoelecFragment();
+            getFragmentManager().beginTransaction().replace(R.id.render_holder, optoelecFragment).commit();
         } else {
-            playFragment = (PlayFragment) getFragmentManager().findFragmentById(R.id.render_holder);
+            optoelecFragment = (OptoelecFragment) getFragmentManager().findFragmentById(R.id.render_holder);
         }
-        playFragment.setOnStateChangedListener(this);
         //for test
-//        playFragment.setUrl("rtsp://184.72.239.149/vod/mp4://BigBuckBunny_175k.mov");
-        playFragment.setUrl("rtsp://192.168.7.1:8553/PSIA/Streaming/channels/0?videoCodecType=H.264");
+//        smartPlayFragment.setUrl("rtsp://192.168.7.1:8553/PSIA/Streaming/channels/0?videoCodecType=H.264");
 
         if (wsController == null) {
             wsController = WsController.getInstance();
@@ -168,7 +154,6 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
 
         //检查WebSocket 连接状态
         if (!wsController.isConnected()) {
-//            wsController.connect("ws://echo.websocket.org");
             wsController.connect("ws://192.168.7.1:1234");
         }
     }
@@ -178,15 +163,29 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         super.onDestroy();
         Log.i(TAG, "onDestroy: ");
         wsController.release();
+        optoelecJinV2.sdkQuit();
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         Log.i(TAG, "onConfigurationChanged: newConfig: " + newConfig);
+        View gl = render_holder.findViewById(R.id.gl);
+        ViewGroup.LayoutParams layoutParams = gl.getLayoutParams();
+        layoutParams.height = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ? MATCH_PARENT : dip2px(this, 300);
+        gl.setLayoutParams(layoutParams);
+        rlFooter.setVisibility(newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE ?View.GONE:View.VISIBLE);
         for (Map.Entry<String, ParamsDialog> entry : paramsDialogMap.entrySet()) {
             entry.getValue().onConfigurationChanged(newConfig);
         }
+
+
+    }
+
+    public int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        int i = (int) (dpValue * scale + 0.5f);
+        return i;
     }
 
     @OnClick(R.id.iv_capture_or_record)
@@ -213,64 +212,72 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             //切换到拍照 -- 可能在视频转录过程中切换
             chronometer_record_timer.stop();
             chronometer_record_timer.setVisibility(View.GONE);
-            if (playFragment.isRecording()) {
-                try {
-                    playFragment.startOrStopRecord();
-                } catch (IllegalAccessException e) {
-                    Log.e(TAG, "switchMode: error: " + e);
-                }
-            }
+//            if (smartPlayFragment.isRecording()) {
+//                try {
+//                    smartPlayFragment.startOrStopRecord();
+//                } catch (Exception e) {
+//                    Log.e(TAG, "switchMode: error: " + e);
+//                }
+//            }
         }
     }
 
     private void takePhoto() {
-        Log.i(TAG, "takePhoto: ");
-        File mediaFilesDir = Utils.getMediaFilesDir();
-        if (!mediaFilesDir.exists() && !mediaFilesDir.mkdirs()) {
-            Log.e(TAG, "takePhoto:  media files dir not exists, and cannot be created");
+//        Log.i(TAG, "takePhoto: ");
+//        File mediaFilesDir = Utils.getMediaFilesDir();
+//        if (!mediaFilesDir.exists() && !mediaFilesDir.mkdirs()) {
+//            Log.e(TAG, "takePhoto:  media files dir not exists, and cannot be created");
+//            return;
+//        }
+//        String fileName = dateFormat.format(new Date()) + ".jpg";
+//        file = new File(mediaFilesDir, fileName);
+        byte[] picByte = optoelecFragment.requestPicStream();
+        if (null == picByte) {
+            Toast.toast("服务器错误，未连接到相机！");
             return;
         }
-        if (!MyApplication.getInstance().getParametersBean().isHavaSdCard()) {
-            //没有sd卡
-            byte[] bytes = playFragment.takePicture();
-            if (bytes == null) {
-                Toast.toast("未连接到相机！");
-                return;
-            }
-            Glide.with(CameraActivity.this).load(bytes).into(iv_explore);
-            saveImage(bytes);
-            return;
-        }
-        if (wsController.isConnected()) {
-            wsController.sendCommand(CmdAndParamsCodec.getRequestShootCmd(), new Callback<Callback.Result>() {
-                @Override
-                public void onResult(Result result) {
-                    if (result.result) {
-                        Log.i(TAG, "takePhoto, onResult: success");
-                        //保存图像
-                        final byte[] bytes = CmdAndParamsCodec.decodeBase64StrToBytes(result.msg);
-                        if (bytes != null) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Glide.with(CameraActivity.this).load(bytes).into(iv_explore);
-                                }
-                            });
-                            saveImage(bytes);
-                        } else {
-                            Log.e(TAG, "takePhoto, onResult: decode bitmap failed");
-                            Toast.toast("解析图片失败！");
-                        }
-                    } else {
-                        Log.e(TAG, "takePhoto, onResult: " + result);
-                        Toast.toast("拍照出现异常：" + result.msg);
-                    }
-                }
-            });
-        } else {
-            Log.e(TAG, "takePhoto: error websocket status: " + wsController.getStatusStr());
-            Toast.toast("未连接到相机！");
-        }
+        Glide.with(CameraActivity.this).load(picByte).into(iv_explore);
+        saveImage(picByte);
+
+//        if (!MyApplication.getInstance().getParametersBean().isHavaSdCard()) {
+        //没有sd卡
+//            int result = smartPlayFragment.takePicture(file);
+//            if (result != 0) {
+//                Toast.toast("未连接到相机！");
+//                return;
+//            }
+//            return;
+//        }
+//        if (wsController.isConnected()) {
+//            wsController.sendCommand(CmdAndParamsCodec.getRequestShootCmd(), new Callback<Callback.Result>() {
+//                @Override
+//                public void onResult(Result result) {
+//                    if (result.result) {
+//                        Log.i(TAG, "takePhoto, onResult: success");
+//                        //保存图像
+//                        final byte[] bytes = CmdAndParamsCodec.decodeBase64StrToBytes(result.msg);
+//                        if (bytes != null) {
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    Glide.with(CameraActivity.this).load(bytes).into(iv_explore);
+//                                }
+//                            });
+//                            saveImage(bytes);
+//                        } else {
+//                            Log.e(TAG, "takePhoto, onResult: decode bitmap failed");
+//                            Toast.toast("解析图片失败！");
+//                        }
+//                    } else {
+//                        Log.e(TAG, "takePhoto, onResult: " + result);
+//                        Toast.toast("拍照出现异常：" + result.msg);
+//                    }
+//                }
+//            });
+//        } else {
+//            Log.e(TAG, "takePhoto: error websocket status: " + wsController.getStatusStr());
+//            Toast.toast("未连接到相机！");
+//        }
     }
 
     public void saveImage(byte[] bmp) {
@@ -287,8 +294,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }finally {
-            if (fos!=null){
+        } finally {
+            if (fos != null) {
                 try {
                     fos.close();
                 } catch (IOException e) {
@@ -296,18 +303,8 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
                 }
             }
         }
-        playFragment.saveBitmapInFile(file.getPath());
-//        try {
-//            FileOutputStream fos = new FileOutputStream(file);
-//            fos.write(bmp);
-////            bmp.compress(Bitmap.CompressFormat.JPEG, 100, fos);
-//            fos.flush();
-//            fos.close();
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+//        smartPlayFragment.saveBitmapInFile(file.getPath());
+
     }
 
     private void startOrStopRecord() {
@@ -316,14 +313,9 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
             Toast.toast("请检查手机Wifi 连接！");
             return;
         }
-//        boolean connecting = wsController.isConnecting();
-        try {
-            Log.i(TAG, "startOrStopRecord: ");
-            boolean recording = playFragment.startOrStopRecord();
-            iv_capture_or_record.setImageResource(recording ? R.mipmap.ic_action_record_checked : R.mipmap.ic_action_record);
-        } catch (IllegalAccessException e) {
-            Log.e(TAG, "startOrStopRecord: error: " + e);
-        }
+        Log.i(TAG, "startOrStopRecord: ");
+//        boolean recording = smartPlayFragment.startOrStopRecord();
+//        iv_capture_or_record.setImageResource(recording ? R.mipmap.ic_action_record_checked : R.mipmap.ic_action_record);
     }
 
     @OnClick(R.id.iv_explore)
@@ -531,35 +523,42 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
         }
         return super.onKeyDown(keyCode, event);
     }
-
-    @Override
-    public void onRenderStateChanged(int status) {
-        if (status == RESULT_REND_VIDEO_DISPLAYED) {
-            //视频显示出来后关闭加载画面
-            progress_bar.setVisibility(View.GONE);
-        }
-        Log.i(TAG, "onRenderStateChanged: status = " + status);
-
-    }
-
-    @Override
-    public void onRecordStateChanged(int state) {
-        Log.i(TAG, "onRecordStateChanged: state = " + state);
-        switch (state) {
-            case PlayFragment.RECORD_STATE_BEGIN:
-                chronometer_record_timer.setVisibility(View.VISIBLE);
-                chronometer_record_timer.setBase(SystemClock.elapsedRealtime());
-                chronometer_record_timer.start();
-                break;
-            case PlayFragment.RECORD_STATE_END:
-                chronometer_record_timer.stop();
-                chronometer_record_timer.setVisibility(View.GONE);
-                break;
-            default:
-                Log.e(TAG, "onRecordStateChanged: error state: " + state);
-                break;
-        }
-    }
+    //    @Override
+//    public void onRenderStateChanged(int status) {
+//        if (status == RESULT_REND_VIDEO_DISPLAYED) {
+//            //视频显示出来后关闭加载画面
+//            progress_bar.setVisibility(View.GONE);
+//        }
+//        Log.i(TAG, "onRenderStateChanged: status = " + status);
+//
+//    }
+//
+//    @Override
+//    public void onRecordStateChanged(int state) {
+//        Log.i(TAG, "onRecordStateChanged: state = " + state);
+//        switch (state) {
+//            case SmartPlayFragment.RECORD_STATE_BEGIN:
+//                chronometer_record_timer.setVisibility(View.VISIBLE);
+//                chronometer_record_timer.setBase(SystemClock.elapsedRealtime());
+//                chronometer_record_timer.start();
+//                break;
+//            case SmartPlayFragment.RECORD_STATE_END:
+//                chronometer_record_timer.stop();
+//                chronometer_record_timer.setVisibility(View.GONE);
+//                break;
+//            case SmartPlayFragment.RECORD_STATE_ERRO:
+//                chronometer_record_timer.stop();
+//                chronometer_record_timer.setVisibility(View.GONE);
+//                Toast.toast("网络连接出错");
+//                break;
+//            case SmartPlayFragment.CAPTURE_IMAGE_SUCESS:
+//                Glide.with(CameraActivity.this).load(file).into(iv_explore);
+//                break;
+//            default:
+//                Log.e(TAG, "onRecordStateChanged: error state: " + state);
+//                break;
+//        }
+//    }
 
     /*----------------------------------- WebSocket 模块回调 ----------------------------------*/
     @Override
@@ -628,5 +627,12 @@ public class CameraActivity extends BaseActivity implements PlayFragment.OnState
     public void onMessage(String msg) {
         Log.i(TAG, "onMessage: msg: " + msg);
 
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // TODO: add setContentView(...) invocation
+        ButterKnife.bind(this);
     }
 }

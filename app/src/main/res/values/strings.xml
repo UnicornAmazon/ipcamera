@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AFSCOPE</string>
+    <string name="app_name">ipcamera</string>
     <string name="authorities">com.afscope.authorities.fileprovider</string>
 
     <!-- 摄像头参数 -->
@@ -30,6 +30,9 @@
     <string name="focus_mode_auto">自动聚焦</string>
     <string name="focus_mode_quick">一键聚焦</string>
     <string name="focus_area_manual">手动聚焦</string>
+
+
+    <string name="login_select_iP">请选择ip</string>
 
     <string-array name="focus_area_size_array">
         <item>小</item>

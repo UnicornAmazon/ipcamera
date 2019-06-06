@@ -10,16 +10,17 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.BounceInterpolator;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.elvishew.xlog.LogConfiguration;
+import java.lang.reflect.InvocationHandler;
+
 
 /**
  * Created by Administrator on 2018/5/21 0021.
- *
  */
 public class ParamsBarLayout extends LinearLayout {
     private static final String TAG = "ParamsBarLayout";
@@ -36,16 +37,17 @@ public class ParamsBarLayout extends LinearLayout {
         mHandler = new Handler();
     }
 
-    public void showOrHide(){
-        Log.i(TAG, "showOrHide: isHidden ? "+isHidden);
+    public void showOrHide() {
+        Log.i(TAG, "showOrHide: isHidden ? " + isHidden);
         mHandler.removeCallbacksAndMessages(null);
-        if (isHidden){
+        if (isHidden) {
             show();
         } else {
             hide();
         }
     }
-    private void show(){
+
+    private void show() {
         isHidden = false;
         ObjectAnimator oa = ObjectAnimator.ofFloat(this, "translationY", getTranslationY(), getHeight());
         oa.addListener(new AnimatorListenerAdapter() {
@@ -55,7 +57,7 @@ public class ParamsBarLayout extends LinearLayout {
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        if (!isHidden){
+                        if (!isHidden) {
                             hide();
                         }
                     }
@@ -66,27 +68,27 @@ public class ParamsBarLayout extends LinearLayout {
         oa.start();
     }
 
-    private void hide(){
+    private void hide() {
         isHidden = true;
         animate().translationY(-getHeight())
                 .setDuration(400);
     }
 
-    public void showForever(){
+    public void showForever() {
         Log.i(TAG, "showForever: ");
-        if (isHidden){
+        if (isHidden) {
             show();
         }
         mHandler.removeCallbacksAndMessages(null);
     }
 
-    public void hideAfterAWhile(){
+    public void hideAfterAWhile() {
         Log.i(TAG, "hideAfterAWhile: ");
-        if (!isHidden){
+        if (!isHidden) {
             mHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (!isHidden){
+                    if (!isHidden) {
                         hide();
                     }
                 }

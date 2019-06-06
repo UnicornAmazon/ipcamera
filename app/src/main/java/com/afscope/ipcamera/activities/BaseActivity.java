@@ -6,6 +6,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.afscope.sloptoelectronic.OptoelecJinV2;
+import com.google.gson.Gson;
+
 import butterknife.ButterKnife;
 
 /**
@@ -13,11 +16,14 @@ import butterknife.ButterKnife;
  */
 
 public abstract class BaseActivity extends Activity {
-    private static final String TAG = "BaseActivity";
+    public   final String TAG = this.getClass().getSimpleName();
+    OptoelecJinV2 optoelecJinV2 = new OptoelecJinV2();
+    Gson gson = new Gson();
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("BaseActivity", getClass().getName());
+        optoelecJinV2.sdkInit();
         setContentView(getLayoutId());
         ButterKnife.bind(this);
         initView();

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="11dp"
+        android:layout_marginEnd="35dp"
+        android:text="ip:"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="@+id/ip_address"
+        app:layout_constraintEnd_toStartOf="@+id/ip_address" />
+
+    <EditText
+        android:id="@+id/ip_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="13dp"
+        android:ems="10"
+        android:layout_marginEnd="40dp"
+        android:hint="请输入ip地址"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/port_num"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:spinnerMode="dialog"
+        android:prompt="@string/login_select_iP"
+        app:layout_constraintBottom_toBottomOf="@+id/ip_address"
+        app:layout_constraintTop_toTopOf="@+id/ip_address"
+        tools:layout_editor_absoluteX="8dp"
+        tools:layout_editor_absoluteY="95dp" />
+
+    <EditText
+        android:id="@+id/account_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="256dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="admin"
+        app:layout_constraintStart_toStartOf="@+id/port_num"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/password_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="123456"
+        app:layout_constraintStart_toStartOf="@+id/account_name"
+        app:layout_constraintTop_toBottomOf="@+id/account_name" />
+
+    <TextView
+        android:id="@+id/account_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
+        android:layout_marginEnd="27dp"
+        android:text="账号:"
+        app:layout_constraintBottom_toBottomOf="@+id/account_name"
+        app:layout_constraintEnd_toStartOf="@+id/account_name" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="27dp"
+        android:text="密码:"
+        app:layout_constraintBottom_toBottomOf="@+id/password_name"
+        app:layout_constraintEnd_toStartOf="@+id/password_name" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="61dp"
+        android:text="登录"
+        app:layout_constraintStart_toStartOf="@+id/password_name"
+        app:layout_constraintTop_toBottomOf="@+id/password_name" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/password_name"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/port"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="27dp"
+        android:layout_marginEnd="17dp"
+        android:text="端口："
+        app:layout_constraintBottom_toTopOf="@+id/account_name"
+        app:layout_constraintEnd_toStartOf="@+id/port_num" />
+
+    <EditText
+        android:id="@+id/port_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:text="80"
+        app:layout_constraintBaseline_toBaselineOf="@+id/port"
+        app:layout_constraintStart_toStartOf="@+id/ip_address" />
+
+
+
+</android.support.constraint.ConstraintLayout>

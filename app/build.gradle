@@ -1,3 +1,5 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'org.greenrobot.greendao' // apply plugin
 //def keystorePropertiesFile = rootProject.file("signing.properties")
@@ -41,6 +43,12 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            def df = new SimpleDateFormat("yyyyMMdd")
+            outputFileName = "ipcamera_${df.format(new Date())}_${defaultConfig.versionName}.apk"
+        }
+    }
 
 }
 repositories {
@@ -59,25 +67,25 @@ greendao {
     targetGenDir 'src/main/java'
 }
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile project(path: ':library')
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:support-v4:26.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
-    compile 'com.jakewharton:butterknife:8.6.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation 'com.jakewharton:butterknife:8.6.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
-    compile 'com.squareup.okhttp3:okhttp:3.10.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.7.0'
-    compile 'com.github.bumptech.glide:glide:3.8.0'
-    compile 'com.elvishew:xlog:1.4.0'
-    compile 'commons-lang:commons-lang:2.6'
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.7.0'
+    implementation 'com.github.bumptech.glide:glide:3.8.0'
+    implementation 'com.elvishew:xlog:1.4.0'
+    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'com.google.code.gson:gson:2.6.1'
+    implementation 'org.greenrobot:eventbus:3.1.1'
     //amazon
     implementation rootProject.ext.dependencies["rxandroid"]
     implementation rootProject.ext.dependencies["rxjava"]
     implementation rootProject.ext.dependencies["greendao"]
+    implementation 'com.tencent.bugly:crashreport_upgrade:latest.release'
+    implementation 'com.tencent.bugly:nativecrashreport:latest.release'
     // add library
+    implementation project(':library')
 }

@@ -12,7 +12,6 @@ import android.util.MonthDisplayHelper;
 import com.afscope.ipcamera.beans.ParametersBean;
 import com.elvishew.xlog.LogItem;
 
-import org.easydarwin.util.C;
 
 import java.security.PublicKey;
 import java.util.HashMap;
